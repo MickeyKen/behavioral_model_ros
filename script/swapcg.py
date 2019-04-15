@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
     rospy.init_node('behaviora_model_for_ud')
 
-    sm = smach.StateMachine(outcomes=['succeed', 'failed'])
+    sm = smach.StateMachine(outcomes=['succeed'])
 
     with sm:
         smach.StateMachine.add('Search_and_Wander', Search_and_Wander(),
