@@ -100,8 +100,8 @@ class cstate(smach.State):
 
 if __name__ == '__main__':
     rospy.init_node('action_average')
-    sm = smach.StateMachine(outcomes=['succeed', 'failed'])
 
+    sm = smach.StateMachine(outcomes=['succeed', 'failed'])
     with sm:
         smach.StateMachine.add('ISTATE', ISTATE(),
                                transitions={'to_A':'ASTATE'})
