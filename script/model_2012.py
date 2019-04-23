@@ -5,8 +5,9 @@ import smach
 import smach_ros
 import random
 from smach_ros import ServiceState, SimpleActionState
-from geometry_msgs import Pose, Quaternion
-from move_base_msgs import MoveBaseAction, MoveBaseGoal
+from geometry_msgs.msg import Pose, Quaternion, PoseStamped
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+from behavioral_model.srv import AddPoseRetStr
 
 class Search_and_Wander(smach.State):
     def __init__(self):
@@ -56,40 +57,97 @@ if __name__ == '__main__':
 
     rospy.init_node('new_behaviora_model_for_ud')
 
-    sm = smach.StateMachine(outcomes=['succeed'])
+    initial_pose  = MoveBaseGoal()
+    initial_pose.target_pose.header.frame_id = "map"
+    initial_pose.target_pose.header.stamp = rospy.Time.now()
+    initial_pose.target_pose.pose.position.x =  0.0
+    initial_pose.target_pose.pose.position.y =  1.0
+    q = tf.transformations.quaternion_from_euler(0, 0, 3.14)
+    initial_pose.target_pose.pose.orientation = Quaternion(q[0],q[1],q[2],q[3])
 
+
+    a_pose  = PoseStamped()
+    a_pose.target_pose.header.frame_id = "map"
+    a_pose.target_pose.header.stamp = rospy.Time.now()
+    a_pose.target_pose.pose.position.x =  1.0
+    a_pose.target_pose.pose.position.y =  0.0
+    q = tf.transformations.quaternion_from_euler(0, 0, 3.14)
+    a_pose.target_pose.pose.orientation = Quaternion(q[0],q[1],q[2],q[3])
+
+    b_pose  = PoseStamped()
+    b_pose.target_pose.header.frame_id = "map"
+    b_pose.target_pose.header.stamp = rospy.Time.now()
+    b_pose.target_pose.pose.position.x =  -1.0
+    b_pose.target_pose.pose.position.y =  0.0
+    q = tf.transformations.quaternion_from_euler(0, 0, 3.14)
+    b_pose.target_pose.pose.orientation = Quaternion(q[0],q[1],q[2],q[3])
+
+    c_pose  = PoseStamped()
+    c_pose.target_pose.header.frame_id = "base_link"
+    c_pose.target_pose.header.stamp = rospy.Time.now()
+    c_pose.target_pose.pose.position.x =  -1.0
+    c_pose.target_pose.pose.position.y =  2.0
+    q = tf.transformations.quaternion_from_euler(0, 0, 3.14)
+    c_pose.target_pose.pose.orientation = Quaternion(q[0],q[1],q[2],q[3])
+
+    d_pose  = PoseStamped()
+    d_pose.target_pose.header.frame_id = "base_link"
+    d_pose.target_pose.header.stamp = rospy.Time.now()
+    d_pose.target_pose.pose.position.x =  2.0
+    d_pose.target_pose.pose.position.y =  1.0
+    q = tf.transformations.quaternion_from_euler(0, 0, 3.14)
+    d_pose.target_pose.pose.orientation = Quaternion(q[0],q[1],q[2],q[3])
+
+    sm = smach.StateMachine(outcomes=['success'])
     with sm:
+
+        init_sub = smach.StateMachine(outcomes=['success'])
+        with init_sub:
+
+            smach.StateMachine.add('init_pose',
+                                   SimpleActionState('/move_base/goal',
+                                                     MoveBaseAction,
+                                                     goal=initial_pose),
+                                   transitions={'succeeded': 'success',
+                                                'preempted': 'success',
+                                                'aborted': 'init_pose'})
+
+        smach.StateMachine.add('Set_Pose', init_sub,
+                           transitions={'success': 'Search_and_Wander'})
 
         ###start Search_and_Wander ###
         sw_sub = smach.StateMachine(outcomes=['success'])
         with sw_sub:
-            ### init position ###
-            pose  = MoveBaseGoal()
-            pose.target_pose.header.frame_id = "base_link"
-            pose.target_pose.header.stamp = rospy.Time.now()
-            pose.target_pose.pose.position.x =  0.0
-            pose.target_pose.pose.position.y =  1.0
-            q = tf.transformations.quaternion_from_euler(0, 0, 3.14)
-            pose.target_pose.pose.orientation = Quaternion(q[0],q[1],q[2],q[3])
-            smach.StateMachine.add('Set_Pose',
-                                   SimpleActionState('/move_base/goal',
-                                                     MoveBaseAction,
-                                                     goal=pose),
-                                   transitions={'succeeded': 'Search_and_Wander',
-                                                'preempted': 'Set_Pose',
-                                                'aborted': 'Set_Pose'})
-
-            smach.StateMachine.add('Search_and_Wander', Search_and_Wander(),
-                               transitions={'to_A':'Approach'})
+            smach.StateMachine.add('a_pose',
+                            ServiceState('/search_and_wander/move_base/goal',
+                                         AddPoseRetStr,
+                                         responce = a_pose(b_pose)),
+                                         transitions={'succeeded':'b_pose'})
+            smach.StateMachine.add('b_pose',
+                            ServiceState('/search_and_wander/move_base/goal',
+                                         AddPoseRetStr,
+                                         responce = AddPoseRetStr(c_pose)),
+                                         transitions={'succeeded':'c_pose'})
+            smach.StateMachine.add('c_pose',
+                            ServiceState('/search_and_wander/move_base/goal',
+                                         AddPoseRetStr,
+                                         responce = AddPoseRetStr(d_pose)),
+                                         transitions={'succeeded':'d_pose'})
+            smach.StateMachine.add('d_pose',
+                            ServiceState('/search_and_wander/move_base/goal',
+                                         AddPoseRetStr,
+                                         responce = AddPoseRetStr(a_pose)),
+                                         transitions={'succeeded':'a_pose'})
+            smach.StateMachine.add('Apoint', Search_and_Wander(),
+                               transitions={'to_c':'Calcurate'})
 
             smach.StateMachine.add('Calcurate_Pose',
                                    CBState(calc_pose),
                                    {'success': 'success'})
 
 
-        smach.StateMachine.add('Search_and_Wander', sw_sub,
+        smach.StateMachine.add('Search_and_Wander', a_sub,
                                transitions={'success': 'Approach'})
-
         ### start Approach ###
         a_sub = smach.StateMachine(outcomes=['success'])
         with a_sub:
