@@ -65,39 +65,6 @@ if __name__ == '__main__':
     q = tf.transformations.quaternion_from_euler(0, 0, 3.14)
     initial_pose.target_pose.pose.orientation = Quaternion(q[0],q[1],q[2],q[3])
 
-
-    a_pose  = PoseStamped()
-    a_pose.target_pose.header.frame_id = "map"
-    a_pose.target_pose.header.stamp = rospy.Time.now()
-    a_pose.target_pose.pose.position.x =  1.0
-    a_pose.target_pose.pose.position.y =  0.0
-    q = tf.transformations.quaternion_from_euler(0, 0, 3.14)
-    a_pose.target_pose.pose.orientation = Quaternion(q[0],q[1],q[2],q[3])
-
-    b_pose  = PoseStamped()
-    b_pose.target_pose.header.frame_id = "map"
-    b_pose.target_pose.header.stamp = rospy.Time.now()
-    b_pose.target_pose.pose.position.x =  -1.0
-    b_pose.target_pose.pose.position.y =  0.0
-    q = tf.transformations.quaternion_from_euler(0, 0, 3.14)
-    b_pose.target_pose.pose.orientation = Quaternion(q[0],q[1],q[2],q[3])
-
-    c_pose  = PoseStamped()
-    c_pose.target_pose.header.frame_id = "base_link"
-    c_pose.target_pose.header.stamp = rospy.Time.now()
-    c_pose.target_pose.pose.position.x =  -1.0
-    c_pose.target_pose.pose.position.y =  2.0
-    q = tf.transformations.quaternion_from_euler(0, 0, 3.14)
-    c_pose.target_pose.pose.orientation = Quaternion(q[0],q[1],q[2],q[3])
-
-    d_pose  = PoseStamped()
-    d_pose.target_pose.header.frame_id = "base_link"
-    d_pose.target_pose.header.stamp = rospy.Time.now()
-    d_pose.target_pose.pose.position.x =  2.0
-    d_pose.target_pose.pose.position.y =  1.0
-    q = tf.transformations.quaternion_from_euler(0, 0, 3.14)
-    d_pose.target_pose.pose.orientation = Quaternion(q[0],q[1],q[2],q[3])
-
     sm = smach.StateMachine(outcomes=['success'])
     with sm:
 
