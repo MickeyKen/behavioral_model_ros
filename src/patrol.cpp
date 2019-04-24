@@ -29,6 +29,8 @@ private:
   // ret_str = "success";
   std::stringstream ss;
 
+  int flag;
+
 };
 
 Server::Server()
@@ -49,23 +51,43 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
   a_pose.header.frame_id = "map";
   a_pose.pose.position.x =  1.0;
   a_pose.pose.position.y =  0.0;
+  a_pose.pose.orientation.w = 1.0;
   b_pose.header.frame_id = "map";
   b_pose.pose.position.x =  -1.0;
   b_pose.pose.position.y =  0.0;
+  b_pose.pose.orientation.w = 1.0;
   c_pose.header.frame_id = "map";
   c_pose.pose.position.x =  -1.0;
   c_pose.pose.position.y =  2.0;
+  c_pose.pose.orientation.w = 1.0;
   d_pose.header.frame_id = "map";
   d_pose.pose.position.x =  1.0;
   d_pose.pose.position.y =  2.0;
+  d_pose.pose.orientation.w = 1.0;
+
   for (int i = 0; i < 4; i++) {
+    ros::Time time = ros::Time::now();
     if (i == 0){
-      ros::Time time = ros::Time::now();
       a_pose.header.stamp = time;
+      nav_pub.publish(a_pose);
+    } else if (i == 1){
+      b_pose.header.stamp = time;
+      nav_pub.publish(b_pose);
+    } else if (i == 2){
+      c_pose.header.stamp = time;
+      nav_pub.publish(c_pose);
+    } else{
+      d_pose.header.stamp = time;
+      nav_pub.publish(d_pose);
+    }
+
+    while (1) {
+
     }
   }
-  // ret_str = "result";
-  ss << "hello world ";
+
+  ss << "sucess";
+
   res.result.data = ss.str();
   // req.result = ret_str;
   return true;
@@ -74,7 +96,7 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
 
 void Server::poseCallback(const geometry_msgs::PoseStamped::ConstPtr& pose)
 {
-  ss << "hello world ";
+  flag = 1; // detect human
 }
 
 void Server::loop()
