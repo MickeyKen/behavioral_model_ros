@@ -3,6 +3,8 @@
 #include "behavioral_model/AddPoseRetStr.h"
 #include "geometry_msgs/PoseStamped.h"
 #include "std_msgs/String.h"
+#include "tf/transform_listener.h"
+#include "tf/transform_datatypes.h"
 
 class Server {
 public:
@@ -21,6 +23,9 @@ private:
   ros::NodeHandle nh;
   ros::ServiceServer service;
 
+  tf::TransformListener listener;
+  // tf::StampedTransform transform;
+
   geometry_msgs::PoseStamped a_pose, b_pose, c_pose, d_pose;
 
   const static double a_x = 0.1;
@@ -30,6 +35,10 @@ private:
   std::stringstream ss;
 
   int flag;
+
+  const static double ofset_x = 0.1;
+  const static double ofset_y = 0.1;
+  const static double ofset_w = 0.05;
 
 };
 
@@ -82,6 +91,14 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
     }
 
     while (1) {
+      if (flag == 1) {
+        ss << "human";
+        res.result.data == ss.str();
+        return true;
+      } else {
+        // tf::StampedTransform transform;
+
+      }
 
     }
   }
