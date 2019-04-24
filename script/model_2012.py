@@ -11,14 +11,17 @@ from behavioral_model.srv import AddPoseRetStr
 
 class Search_and_Wander(smach.State):
     def __init__(self):
-        smach.State.__init__(self, outcomes=['to_A'])
-
-        self.subscriber = rospy.Subscriber('/test', Pose, self.callback)
+        smach.State.__init__(self, outcomes=['to_Pa', 'to_C'])
 
     def callback(self, data):
-        rospy.set_param('/target_human_pose/x', data.x)
-        rospy.set_param('/target_human_pose/y', data.y)
-        return data.data
+        request = rospy.ServiceProxy('/patrol/2012', AddPoseRetStr)
+        pose = PoseStamped()
+        responce = request(pose)
+
+        if responce.result == "success":
+            return 'to_Pa'
+        elif responce.result == "human":
+            return 'to_C'
 
 def calc_pose():
     ### get human position ###
@@ -68,6 +71,7 @@ if __name__ == '__main__':
     sm = smach.StateMachine(outcomes=['success'])
     with sm:
 
+        ### moving initial_pose ###
         init_sub = smach.StateMachine(outcomes=['success'])
         with init_sub:
 
@@ -85,30 +89,14 @@ if __name__ == '__main__':
         ###start Search_and_Wander ###
         sw_sub = smach.StateMachine(outcomes=['success'])
         with sw_sub:
-            smach.StateMachine.add('a_pose',
+            smach.StateMachine.add('patrol',
                             ServiceState('/search_and_wander/move_base/goal',
                                          AddPoseRetStr,
                                          responce = a_pose(b_pose)),
-                                         transitions={'succeeded':'b_pose'})
-            smach.StateMachine.add('b_pose',
-                            ServiceState('/search_and_wander/move_base/goal',
-                                         AddPoseRetStr,
-                                         responce = AddPoseRetStr(c_pose)),
-                                         transitions={'succeeded':'c_pose'})
-            smach.StateMachine.add('c_pose',
-                            ServiceState('/search_and_wander/move_base/goal',
-                                         AddPoseRetStr,
-                                         responce = AddPoseRetStr(d_pose)),
-                                         transitions={'succeeded':'d_pose'})
-            smach.StateMachine.add('d_pose',
-                            ServiceState('/search_and_wander/move_base/goal',
-                                         AddPoseRetStr,
-                                         responce = AddPoseRetStr(a_pose)),
-                                         transitions={'succeeded':'a_pose'})
-            smach.StateMachine.add('Apoint', Search_and_Wander(),
-                               transitions={'to_c':'Calcurate'})
+                                         transitions={'to_c':'calcurate_pose',
+                                                      'to_pa': 'patrol'})
 
-            smach.StateMachine.add('Calcurate_Pose',
+            smach.StateMachine.add('calcurate_pose',
                                    CBState(calc_pose),
                                    {'success': 'success'})
 
@@ -136,7 +124,7 @@ if __name__ == '__main__':
                                transitions={'success': 'success'})
 
 
-    sis = smach_ros.IntrospectionServer('behaviora_model_for_ud_server', sm, '/ROOT')
+    sis = smach_ros.IntrospectionServer('behaviora_model_2012', sm, '/ROOT')
     sis.start()
     rospy.sleep(1)
 
