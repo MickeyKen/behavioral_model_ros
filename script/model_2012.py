@@ -18,9 +18,9 @@ class Search_and_Wander(smach.State):
         pose = PoseStamped()
         responce = request(pose)
 
-        if responce.result == "success":
+        if responce.result.data == "success":
             return 'to_Pa'
-        elif responce.result == "human":
+        elif responce.result.data == "human":
             return 'to_C'
 
 def calc_pose():
