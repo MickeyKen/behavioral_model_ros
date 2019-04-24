@@ -24,9 +24,9 @@ private:
   ros::ServiceServer service;
 
   tf::TransformListener listener;
-  // tf::StampedTransform transform;
+  tf::StampedTransform transform;
 
-  geometry_msgs::PoseStamped a_pose, b_pose, c_pose, d_pose;
+  geometry_msgs::PoseStamped a_pose, b_pose, c_pose, d_pose, ex_pose;
 
   const static double a_x = 0.1;
 
@@ -36,9 +36,9 @@ private:
 
   int flag;
 
-  const static double ofset_x = 0.1;
-  const static double ofset_y = 0.1;
-  const static double ofset_w = 0.05;
+  const static double offset_x = 0.1;
+  const static double offset_y = 0.1;
+  const static double offset_w = 0.05;
 
 };
 
@@ -95,18 +95,29 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
         ss << "human";
         res.result.data == ss.str();
         return true;
+
       } else {
-        // tf::StampedTransform transform;
 
+        try {
+          listener.waitForTransform("/map","/base_link", ros::Time(0), ros::Duration(3.0));
+          listener.lookupTransform("/map","/base_footprint", ros::Time(0), transform);
+        }
+        catch (tf::TransformException &ex) {
+          ROS_ERROR("%s", ex.what());
+          ros::Duration(1.0).sleep();
+          continue;
+        }
+        if (transform.getOrigin().x() > -offset_x && transform.getOrigin().x() < offset_x &&
+            transform.getOrigin().y() > -offset_y && transform.getOrigin().y() < offset_y)
+            break;
       }
-
     }
   }
 
   ss << "sucess";
 
   res.result.data = ss.str();
-  // req.result = ret_str;
+
   return true;
 }
 
