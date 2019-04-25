@@ -1,0 +1,6 @@
+<launch>
+
+    <node name="smach_node" pkg="behavioral_model" type="model_2012.py" output="screen"/>
+    <node name="patrol_server" pkg="behavioral_model" type="patrol_node" output="screen"/>
+    <node name="smach_viewer" pkg="smach_viewer" type="smach_viewer.py" output="screen" />
+</launch>
