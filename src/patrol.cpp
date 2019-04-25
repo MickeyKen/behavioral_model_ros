@@ -1,4 +1,5 @@
 #include "ros/ros.h"
+#include <stdio.h>
 #include <geometry_msgs/Twist.h>
 #include "behavioral_model/AddPoseRetStr.h"
 #include "geometry_msgs/PoseStamped.h"
@@ -36,8 +37,8 @@ private:
 
   int flag;
 
-  const static double offset_x = 0.1;
-  const static double offset_y = 0.1;
+  const static double offset_x = 0.5;
+  const static double offset_y = 0.5;
   const static double offset_w = 0.05;
 
 };
@@ -71,21 +72,33 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
   c_pose.pose.orientation.w = 1.0;
   d_pose.header.frame_id = "map";
   d_pose.pose.position.x =  1.0;
-  d_pose.pose.position.y =  2.0;
+  d_pose.pose.position.y =  1.0;
   d_pose.pose.orientation.w = 1.0;
 
+  double target_x = 0.0;
+  double target_y = 0.0;
+
   for (int i = 0; i < 4; i++) {
+    printf ("pass");
     ros::Time time = ros::Time::now();
     if (i == 0){
+      target_x = a_pose.pose.position.x;
+      target_y = a_pose.pose.position.y;
       a_pose.header.stamp = time;
       nav_pub.publish(a_pose);
     } else if (i == 1){
+      target_x = b_pose.pose.position.x;
+      target_y = b_pose.pose.position.y;
       b_pose.header.stamp = time;
       nav_pub.publish(b_pose);
     } else if (i == 2){
+      target_x = c_pose.pose.position.x;
+      target_y = c_pose.pose.position.y;
       c_pose.header.stamp = time;
       nav_pub.publish(c_pose);
     } else{
+      target_x = d_pose.pose.position.x;
+      target_y = d_pose.pose.position.y;
       d_pose.header.stamp = time;
       nav_pub.publish(d_pose);
     }
@@ -100,21 +113,22 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
 
         try {
           listener.waitForTransform("/map","/base_link", ros::Time(0), ros::Duration(3.0));
-          listener.lookupTransform("/map","/base_footprint", ros::Time(0), transform);
+          listener.lookupTransform("/map","/base_link", ros::Time(0), transform);
         }
         catch (tf::TransformException &ex) {
           ROS_ERROR("%s", ex.what());
           ros::Duration(1.0).sleep();
           continue;
         }
-        if (transform.getOrigin().x() > -offset_x && transform.getOrigin().x() < offset_x &&
-            transform.getOrigin().y() > -offset_y && transform.getOrigin().y() < offset_y)
+
+        if (transform.getOrigin().x() > (-offset_x + target_x) && transform.getOrigin().x() < (offset_x + target_x) &&
+            transform.getOrigin().y() > (-offset_y + target_y) && transform.getOrigin().y() < (offset_y + target_y))
             break;
       }
     }
   }
 
-  ss << "sucess";
+  ss << "success";
 
   res.result.data = ss.str();
 

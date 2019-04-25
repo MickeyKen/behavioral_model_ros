@@ -9,24 +9,37 @@ from geometry_msgs.msg import Pose, Quaternion, PoseStamped
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from behavioral_model.srv import AddPoseRetStr
 
-class Search_and_Wander(smach.State):
+class Patrol(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes=['to_Pa', 'to_C'])
 
-    def callback(self, data):
+    def execute(self, userdata):
         request = rospy.ServiceProxy('/patrol/2012', AddPoseRetStr)
         pose = PoseStamped()
         responce = request(pose)
-
+        print responce.result.data
         if responce.result.data == "success":
             return 'to_Pa'
         elif responce.result.data == "human":
             return 'to_C'
 
 def calc_pose():
+    pass
     ### get human position ###
-    x_value = rospy.get_param("/target_human_pose/x")
-    y_value = rospy.get_param("/target_human_pose/y")
+    # x_value = rospy.get_param("/target_human_pose/x")
+    # y_value = rospy.get_param("/target_human_pose/y")
+class Calc_pose(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['success', 'to_Pa'])
+
+    def execute(self, userdata):
+        rospy.loginfo('Executing int state BSTATE')
+        rospy.sleep(1)
+
+        if random.random() > 0.5:
+            return 'success'
+
+        return 'to_Pa'
 
 class Approach(smach.State):
     def __init__(self):
@@ -71,57 +84,54 @@ if __name__ == '__main__':
     sm = smach.StateMachine(outcomes=['success'])
     with sm:
 
-        ### moving initial_pose ###
-        init_sub = smach.StateMachine(outcomes=['success'])
-        with init_sub:
-
-            smach.StateMachine.add('init_pose',
-                                   SimpleActionState('/move_base/goal',
-                                                     MoveBaseAction,
-                                                     goal=initial_pose),
-                                   transitions={'succeeded': 'success',
-                                                'preempted': 'success',
-                                                'aborted': 'init_pose'})
-
-        smach.StateMachine.add('Set_Pose', init_sub,
-                           transitions={'success': 'Search_and_Wander'})
+        # ### moving initial_pose ###
+        # init_sub = smach.StateMachine(outcomes=['success'])
+        # with init_sub:
+        #
+        #     smach.StateMachine.add('init_pose',
+        #                            SimpleActionState('/move_base/goal',
+        #                                              MoveBaseAction,
+        #                                              goal=initial_pose),
+        #                            transitions={'succeeded': 'success',
+        #                                         'preempted': 'success',
+        #                                         'aborted': 'init_pose'})
+        #
+        # smach.StateMachine.add('Set_Pose', init_sub,
+        #                    transitions={'success': 'Search_and_Wander'})
 
         ###start Search_and_Wander ###
         sw_sub = smach.StateMachine(outcomes=['success'])
         with sw_sub:
-            smach.StateMachine.add('patrol',
-                            ServiceState('/search_and_wander/move_base/goal',
-                                         AddPoseRetStr,
-                                         responce = a_pose(b_pose)),
-                                         transitions={'to_c':'calcurate_pose',
-                                                      'to_pa': 'patrol'})
+            smach.StateMachine.add('patrol',Patrol(),
+                               transitions={'to_C':'calcurate_pose',
+                                            'to_Pa': 'patrol'})
 
-            smach.StateMachine.add('calcurate_pose',
-                                   CBState(calc_pose),
-                                   {'success': 'success'})
+            smach.StateMachine.add('calcurate_pose',Calc_pose(),
+                                   transitions={'success': 'success',
+                                               'to_Pa': 'patrol'})
 
 
-        smach.StateMachine.add('Search_and_Wander', a_sub,
-                               transitions={'success': 'Approach'})
-        ### start Approach ###
-        a_sub = smach.StateMachine(outcomes=['success'])
-        with a_sub:
-            smach.StateMachine.add('Approach', Approach(),
-                               transitions={'to_SW':'Search_and_Wander'})
-
-
-        smach.StateMachine.add('Approach', a_sub,
-                               transitions={'success': 'Provide'})
-
-        ### Start Provide ###
-        p_sub = smach.StateMachine(outcomes=['success'])
-
-        with p_sub:
-            smach.StateMachine.add('Provide', Provide(),
-                               transitions={'to_SW':'Search_and_Wander'})
-
-        smach.StateMachine.add('Provide', p_sub,
+        smach.StateMachine.add('Search_and_Wander', sw_sub,
                                transitions={'success': 'success'})
+        # ### start Approach ###
+        # a_sub = smach.StateMachine(outcomes=['success'])
+        # with a_sub:
+        #     smach.StateMachine.add('Approach', Approach(),
+        #                        transitions={'to_SW':'Search_and_Wander'})
+        #
+        #
+        # smach.StateMachine.add('Approach', a_sub,
+        #                        transitions={'success': 'Provide'})
+        #
+        # ### Start Provide ###
+        # p_sub = smach.StateMachine(outcomes=['success'])
+        #
+        # with p_sub:
+        #     smach.StateMachine.add('Provide', Provide(),
+        #                        transitions={'to_SW':'Search_and_Wander'})
+        #
+        # smach.StateMachine.add('Provide', p_sub,
+                               # transitions={'success': 'success'})
 
 
     sis = smach_ros.IntrospectionServer('behaviora_model_2012', sm, '/ROOT')
