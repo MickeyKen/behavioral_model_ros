@@ -1,10 +1,16 @@
 #!/usr/bin/env python
 
 import rospy
+import numpy as np
+import math
+
 from people_msgs.msg import PositionMeasurementArray
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import PoseWithCovariance
 from visualization_msgs.msg import Marker
+from std_msgs.msg import String
+from nav_msgs.srv import GetMap
+
 
 class Publishsers():
     def make_msg(self, x, y):
@@ -39,19 +45,38 @@ class Publishsers():
 
 class Server(Publishsers):
     def __init__(self):
-        self.pose_sub = rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, self.pose_callback)
-        self.ptm_sub = rospy.Subscriber('/people_tracker_measurements', PositionMeasurementArray , self.ptm_callback)
+        ### get map_data ###
+        self.map_service = rospy.ServiceProxy('static_map', GetMap)
+        self.map_data = self.map_service()
         self.range_rviz = Marker()
         self.range_rviz.header.frame_id = "base_link"
         self.range_pub = rospy.Publisher("/range_pub", Marker, queue_size = 10)
+        self.result_pub = rospy.Publisher("/ptm/server/result", String, queue_size = 10)
+        self.result = String()
+        self.people1 = np.zeros((100,2))
+        self.pose_sub = rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, self.pose_callback)
+        self.ptm_sub = rospy.Subscriber('/people_tracker_measurements', PositionMeasurementArray , self.ptm_callback)
+
 
     def pose_callback(self, msg):
-        self.make_msg(msg.pose.pose.position.x,msg.pose.pose.position.y)
+        pass
+        # self.make_msg(msg.pose.pose.position.x, msg.pose.pose.position.y)
 
 
     def ptm_callback(self, msg):
+        x = 0
+        y = 0
         if msg.people:
-            pass
+            for i in msg.people:
+                if i.name == "Person0":
+                    x = i.pos.x
+                    y = i.pos.y
+                    break
+
+            if (self.map_data.map.data[ int(y / self.map_data.map.info.resolution) * self.map_data.map.info.width + int(x / self.map_data.map.info.resolution)] != 100):
+                self.people1 = np.append(self.people1, np.array([[x, y]]), axis=0)
+                self.result = "human"
+                self.result_pub.publish(self.result)
         else:
             pass
 
