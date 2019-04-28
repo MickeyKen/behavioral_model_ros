@@ -4,9 +4,11 @@
 #include <geometry_msgs/PoseStamped.h>
 #include "behavioral_model/AddPoseRetStr.h"
 #include "std_msgs/String.h"
+#include "std_msgs/Header.h"
 #include "tf/transform_listener.h"
 #include "tf/transform_datatypes.h"
 #include <people_msgs/PositionMeasurementArray.h>
+#include <people_msgs/PositionMeasurement.h>
 class Server {
 public:
   Server();
@@ -33,7 +35,7 @@ private:
 
   std_msgs::String ret_str;
   // ret_str = "success";
-  std::stringstream ss;
+  std::string ss;
 
   int flag;
 
@@ -79,7 +81,7 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
   double target_y = 0.0;
 
   for (int i = 0; i < 4; i++) {
-    printf ("pass");
+    // printf ("pass");
     ros::Time time = ros::Time::now();
     if (i == 0){
       target_x = a_pose.pose.position.x;
@@ -105,8 +107,8 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
 
     while (1) {
       if (flag == 1) {
-        ss << "human";
-        res.result.data == ss.str();
+        ss = "human";
+        res.result.data = ss;
         return true;
 
       } else {
@@ -128,9 +130,9 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
     }
   }
 
-  ss << "success";
+  ss = "success";
 
-  res.result.data = ss.str();
+  res.result.data = ss;
 
   return true;
 }
@@ -138,8 +140,13 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
 
 void Server::poseCallback(const people_msgs::PositionMeasurementArray::ConstPtr& pose)
 {
-  printf("callback people_tracker_measurements");
-  flag = 1; // detect human
+  // printf("callback people_tracker_measurements");
+  if (pose->people[0].header.seq == 0){
+    printf("not person");
+  }
+  else {
+    flag = 1; // detect human
+  }
 }
 
 void Server::loop()
