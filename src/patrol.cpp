@@ -1,18 +1,18 @@
 #include "ros/ros.h"
 #include <stdio.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/PoseStamped.h>
 #include "behavioral_model/AddPoseRetStr.h"
-#include "geometry_msgs/PoseStamped.h"
 #include "std_msgs/String.h"
 #include "tf/transform_listener.h"
 #include "tf/transform_datatypes.h"
-
+#include <people_msgs/PositionMeasurementArray.h>
 class Server {
 public:
   Server();
   ~Server() {};
 
-  void poseCallback(const geometry_msgs::PoseStamped::ConstPtr& target_pose);
+  void poseCallback(const people_msgs::PositionMeasurementArray::ConstPtr& pose);
 
   bool PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
                     behavioral_model::AddPoseRetStr::Response &res);
@@ -51,7 +51,7 @@ Server::Server()
 
   nav_pub= nh.advertise<geometry_msgs::PoseStamped>("/move_base_simple/goal", 10);
 
-  human_sub = nh.subscribe("/human_pose", 10, &Server::poseCallback, this);
+  human_sub = nh.subscribe("/people_tracker_measurements", 10, &Server::poseCallback, this);
 
 }
 
@@ -136,8 +136,9 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
 }
 
 
-void Server::poseCallback(const geometry_msgs::PoseStamped::ConstPtr& pose)
+void Server::poseCallback(const people_msgs::PositionMeasurementArray::ConstPtr& pose)
 {
+  printf("callback people_tracker_measurements");
   flag = 1; // detect human
 }
 
