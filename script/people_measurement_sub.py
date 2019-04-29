@@ -94,7 +94,7 @@ class Server(Publishsers):
                     person_name = i.name
                     x = i.pos.x
                     y = i.pos.y
-                    break
+                    rospy.set_param('/target_person_name', person_name)
             # print x, y
 
             if (self.map_data.map.data[ int(y / self.map_data.map.info.resolution) * self.map_data.map.info.width + int(x / self.map_data.map.info.resolution)] != 100):
