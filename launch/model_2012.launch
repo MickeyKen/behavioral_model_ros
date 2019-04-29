@@ -3,6 +3,8 @@
     <node name="smach_node" pkg="behavioral_model" type="model_2012.py" output="screen"/>
     <node name="patrol_server" pkg="behavioral_model" type="patrol_node" output="screen"/>
     <node name="smach_viewer" pkg="smach_viewer" type="smach_viewer.py" output="screen" />
+    <node name="detect_optimazed_point_server" pkg="behavioral_model" type="people_measurement_sub.py" output="screen" /> 
+
     <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
       <param name="destination_frame" value="base_scan"/>
       <param name="cloud_destination_topic" value="/merged_cloud"/>
