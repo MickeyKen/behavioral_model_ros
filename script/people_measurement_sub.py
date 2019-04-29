@@ -94,13 +94,16 @@ class Server(Publishsers):
                     person_name = i.name
                     x = i.pos.x
                     y = i.pos.y
-                    rospy.set_param('/target_person_name', person_name)
+                    # rospy.set_param('/target_person_name', person_name)
             # print x, y
 
             if (self.map_data.map.data[ int(y / self.map_data.map.info.resolution) * self.map_data.map.info.width + int(x / self.map_data.map.info.resolution)] != 100):
                 self.people1 = np.append(self.people1, np.array([[x, y]]), axis=0)
                 # print self.people1
-                self.result.data = "human"
+                self.result.data = person_name
+                self.result_pub.publish(self.result)
+            else:
+                self.result.data = "nohuman"
                 self.result_pub.publish(self.result)
 
         # people not found
