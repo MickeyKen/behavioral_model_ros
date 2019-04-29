@@ -17,17 +17,21 @@ class Patrol(smach.State):
         request = rospy.ServiceProxy('/patrol/2012', AddPoseRetStr)
         pose = PoseStamped()
         responce = request(pose)
-        print responce.result.data
-        if responce.result.data == "success":
-            return 'to_Pa'
-        elif responce.result.data == "human":
+        
+        # print responce.result.data
+
+        if responce.result.data == "human":
             return 'to_C'
+        else:
+            return 'to_Pa'
 
 def calc_pose():
     pass
     ### get human position ###
     # x_value = rospy.get_param("/target_human_pose/x")
     # y_value = rospy.get_param("/target_human_pose/y")
+
+
 class Calc_pose(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes=['success', 'to_Pa'])
