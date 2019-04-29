@@ -95,17 +95,18 @@ class Server(Publishsers):
                     x = i.pos.x
                     y = i.pos.y
                     break
-            print x, y
+            # print x, y
 
             if (self.map_data.map.data[ int(y / self.map_data.map.info.resolution) * self.map_data.map.info.width + int(x / self.map_data.map.info.resolution)] != 100):
                 self.people1 = np.append(self.people1, np.array([[x, y]]), axis=0)
                 # print self.people1
-                self.result = "human"
+                self.result.data = "human"
                 self.result_pub.publish(self.result)
 
         # people not found
         else:
-            pass
+            self.result.data = "nohuman"
+            self.result_pub.publish(self.result)
 
 
 
