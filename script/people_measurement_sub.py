@@ -45,38 +45,65 @@ class Publishsers():
 
 class Server(Publishsers):
     def __init__(self):
-        ### get map_data ###
+        # get map_data
         self.map_service = rospy.ServiceProxy('static_map', GetMap)
         self.map_data = self.map_service()
+
+        # Marker Array for rviz
         self.range_rviz = Marker()
         self.range_rviz.header.frame_id = "base_link"
+
+        # message for result topic
+        self.result = String()
+
+        # numpy array for person xy
+        self.people1 = np.zeros((100,2))
+
+        # ubiquitous display current pose
+        self.amcl_pose_x = 0.0
+        self.amcl_pose_y = 0.0
+
+        # Declaration Publisher
         self.range_pub = rospy.Publisher("/range_pub", Marker, queue_size = 10)
         self.result_pub = rospy.Publisher("/ptm/server/result", String, queue_size = 10)
-        self.result = String()
-        self.people1 = np.zeros((100,2))
+
+        # Declaration Subscriber
         self.pose_sub = rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, self.pose_callback)
         self.ptm_sub = rospy.Subscriber('/people_tracker_measurements', PositionMeasurementArray , self.ptm_callback)
 
 
+    ### callback function for amcl node (pose) ###
     def pose_callback(self, msg):
-        pass
+        self.amcl_pose_x = msg.pose.pose.position.x
+        self.amcl_pose_y = msg.pose.pose.position.y
         # self.make_msg(msg.pose.pose.position.x, msg.pose.pose.position.y)
 
 
+    ### callback function for /people_tracker_measurements ###
     def ptm_callback(self, msg):
+        ud_person_distance = 5.0
         x = 0
         y = 0
+        person_name = ""
+
+        # people found
         if msg.people:
             for i in msg.people:
-                if i.name == "Person0":
+                d = math.sqrt((i.pos.x - self.amcl_pose_x) ** 2 + (i.pos.y - self.amcl_pose_y) ** 2)
+                if d < ud_person_distance:
+                    person_name = i.name
                     x = i.pos.x
                     y = i.pos.y
                     break
+            print x, y
 
             if (self.map_data.map.data[ int(y / self.map_data.map.info.resolution) * self.map_data.map.info.width + int(x / self.map_data.map.info.resolution)] != 100):
                 self.people1 = np.append(self.people1, np.array([[x, y]]), axis=0)
+                # print self.people1
                 self.result = "human"
                 self.result_pub.publish(self.result)
+
+        # people not found
         else:
             pass
 
