@@ -114,7 +114,7 @@ class Server(Publishsers):
 
 
 if __name__ == '__main__':
-    rospy.init_node('detect_optimazed_point_server')
+    rospy.init_node('detect_person_server')
 
     server = Server()
 
