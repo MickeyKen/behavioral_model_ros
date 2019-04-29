@@ -1,10 +1,14 @@
 <launch>
 
+    <!-- smach node -->
     <node name="smach_node" pkg="behavioral_model" type="model_2012.py" output="screen"/>
-    <node name="patrol_server" pkg="behavioral_model" type="patrol_node" output="screen"/>
     <node name="smach_viewer" pkg="smach_viewer" type="smach_viewer.py" output="screen" />
-    <node name="detect_optimazed_point_server" pkg="behavioral_model" type="people_measurement_sub.py" output="screen" /> 
 
+    <!-- serveer node for smach -->
+    <node name="patrol_server" pkg="behavioral_model" type="patrol_node" output="screen"/>
+    <node name="detect_optimazed_point_server" pkg="behavioral_model" type="people_measurement_sub.py" output="screen" />
+
+    <!-- launch merger lrf -->
     <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
       <param name="destination_frame" value="base_scan"/>
       <param name="cloud_destination_topic" value="/merged_cloud"/>
@@ -18,5 +22,7 @@
       <param name="range_min" value="0.30"/>
       <param name="range_max" value="50.0"/>
     </node>
+
+    <!-- launch leg_detctor -->
     <node pkg="leg_detector" type="leg_detector" name="leg_detector" args="scan:=scan $(find leg_detector)/config/trained_leg_detector.yaml" output="screen"/>
 </launch>
