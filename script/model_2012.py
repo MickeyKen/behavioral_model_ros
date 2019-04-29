@@ -8,28 +8,35 @@ from smach_ros import ServiceState, SimpleActionState
 from geometry_msgs.msg import Pose, Quaternion, PoseStamped
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from behavioral_model.srv import AddPoseRetStr
+from people_msgs.msg import PositionMeasurementArray
 
 class Patrol(smach.State):
     def __init__(self):
-        smach.State.__init__(self, outcomes=['to_Pa', 'to_C'])
+        smach.State.__init__(self, outcomes=['to_Pa', 'success'])
 
     def execute(self, userdata):
-        request = rospy.ServiceProxy('/patrol/2012', AddPoseRetStr)
+        request = rospy.ServiceProxy('/search/target_human', AddPoseRetStr)
         pose = PoseStamped()
         responce = request(pose)
-        
+
         # print responce.result.data
 
-        if responce.result.data == "human":
-            return 'to_C'
-        else:
+        if responce.result.data == "nohuman":
             return 'to_Pa'
+        else:
+            rospy.set_param('/target_person_name', responce.result.data)
+            return 'success'
 
-def calc_pose():
-    pass
-    ### get human position ###
-    # x_value = rospy.get_param("/target_human_pose/x")
-    # y_value = rospy.get_param("/target_human_pose/y")
+class Decide(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['to_SW', 'to_Go'])
+
+    def execute(self, userdata):
+        request = rospy.ServiceProxy('/detect/optimize_point', AddPoseRetStr)
+        pose = PoseStamped()
+        responce = request(pose)
+
+        # print responce.result.da
 
 
 class Calc_pose(smach.State):
@@ -107,25 +114,27 @@ if __name__ == '__main__':
         sw_sub = smach.StateMachine(outcomes=['success'])
         with sw_sub:
             smach.StateMachine.add('patrol',Patrol(),
-                               transitions={'to_C':'calcurate_pose',
+                               transitions={'success':'success',
                                             'to_Pa': 'patrol'})
 
-            smach.StateMachine.add('calcurate_pose',Calc_pose(),
-                                   transitions={'success': 'success',
-                                               'to_Pa': 'patrol'})
-
-
         smach.StateMachine.add('Search_and_Wander', sw_sub,
+                               transitions={'success': 'Approach'})
+
+
+        ## start Approach ###
+        a_sub = smach.StateMachine(outcomes=['success'])
+        with a_sub:
+            smach.StateMachine.add('decide_optimize_point', Decide(),
+                               transitions={'to_SW':'Search_and_Wander',
+                                            'to_Go':'go_pose'})
+
+            smach.StateMachine.add('go_pose', Go(),
+                               transitions={'to_Pa':'patrol',
+                                            'success':'success'})
+
+        smach.StateMachine.add('Approach', a_sub,
                                transitions={'success': 'success'})
-        # ### start Approach ###
-        # a_sub = smach.StateMachine(outcomes=['success'])
-        # with a_sub:
-        #     smach.StateMachine.add('Approach', Approach(),
-        #                        transitions={'to_SW':'Search_and_Wander'})
-        #
-        #
-        # smach.StateMachine.add('Approach', a_sub,
-        #                        transitions={'success': 'Provide'})
+
         #
         # ### Start Provide ###
         # p_sub = smach.StateMachine(outcomes=['success'])
