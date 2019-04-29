@@ -51,7 +51,7 @@ Server::Server()
 {
   ROS_INFO("Ready to patrol");
 
-  service = nh.advertiseService("/patrol/2012",&Server::PatrolService,this);
+  service = nh.advertiseService("/search/target_human",&Server::PatrolService,this);
 
   nav_pub= nh.advertise<geometry_msgs::PoseStamped>("/move_base_simple/goal", 10);
 
