@@ -15,7 +15,8 @@ public:
   Server();
   ~Server() {};
 
-  void poseCallback(const people_msgs::PositionMeasurementArray::ConstPtr& pose);
+  // void poseCallback(const people_msgs::PositionMeasurementArray::ConstPtr& pose);
+  void poseCallback(const std_msgs::String::ConstPtr& pose);
 
   bool PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
                     behavioral_model::AddPoseRetStr::Response &res);
@@ -54,7 +55,8 @@ Server::Server()
 
   nav_pub= nh.advertise<geometry_msgs::PoseStamped>("/move_base_simple/goal", 10);
 
-  human_sub = nh.subscribe("/people_tracker_measurements", 10, &Server::poseCallback, this);
+  // human_sub = nh.subscribe("/people_tracker_measurements", 10, &Server::poseCallback, this);
+  human_sub = nh.subscribe("/ptm/server/result", 10, &Server::poseCallback, this);
 
 }
 
@@ -139,7 +141,8 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
 }
 
 
-void Server::poseCallback(const people_msgs::PositionMeasurementArray::ConstPtr& pose)
+// void Server::poseCallback(const people_msgs::PositionMeasurementArray::ConstPtr& pose)
+void Server::poseCallback(const std_msgs::String::ConstPtr& pose)
 {
   // printf("%s",pose->people[0]);
   // std::cout << pose->people[0] << std::endl;
