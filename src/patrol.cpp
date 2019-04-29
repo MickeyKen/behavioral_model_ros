@@ -110,7 +110,7 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
 
     while (1) {
       if (flag == 1) {
-        ss = "human";
+        // ss = "human";
         res.result.data = ss;
         return true;
 
@@ -133,7 +133,7 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
     }
   }
 
-  ss = "success";
+  ss = "nohuman";
 
   res.result.data = ss;
 
@@ -144,11 +144,13 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
 // void Server::poseCallback(const people_msgs::PositionMeasurementArray::ConstPtr& pose)
 void Server::poseCallback(const std_msgs::String::ConstPtr& pose)
 {
-  if (pose->data == "human") {
-    flag = 1;
+  if (pose->data == "nohuman") {
+    ss = "nohuman";
+    flag = 0;
   }
   else {
-    flag = 0;
+    ss = pose->data;
+    flag = 1;
   }
 }
 
