@@ -144,16 +144,12 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
 // void Server::poseCallback(const people_msgs::PositionMeasurementArray::ConstPtr& pose)
 void Server::poseCallback(const std_msgs::String::ConstPtr& pose)
 {
-  // printf("%s",pose->people[0]);
-  // std::cout << pose->people[0] << std::endl;
-  // if (pose->people[0].header.seq)
-  //   std::cout << pose->people[0].header.seq<< std::endl;
-  // if (pose->people[0].header.seq == 0){
-  //   printf("not person");
-  // }
-  // else {
-  //   flag = 1; // detect human
-  // }
+  if (pose->data == "human") {
+    flag = 1;
+  }
+  else {
+    flag = 0;
+  }
 }
 
 void Server::loop()
