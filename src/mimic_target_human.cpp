@@ -35,15 +35,15 @@ void Mimic::poseCallback(const geometry_msgs::PoseConstPtr& pose)
   marker_body.action = visualization_msgs::Marker::ADD;
   marker_body.pose.position.x = pose->position.x;
   marker_body.pose.position.y = pose->position.y;
-  marker_body.pose.position.z = 0;
+  marker_body.pose.position.z = 0.85;
   marker_body.pose.orientation.x = 0.0;
   marker_body.pose.orientation.y = 0.0;
   marker_body.pose.orientation.z = 0.0;
   marker_body.pose.orientation.w = 1.0;
 
   // Set the scale of the marker -- 1x1x1 here means 1m on a side
-  marker_body.scale.x = 1.0;
-  marker_body.scale.y = 1.0;
+  marker_body.scale.x = 0.5;
+  marker_body.scale.y = 0.5;
   marker_body.scale.z = 1.7;
 
   // Set the color -- be sure to set alpha to something non-zero!
