@@ -7,44 +7,15 @@ import math
 from people_msgs.msg import PositionMeasurementArray
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import PoseWithCovariance
-from visualization_msgs.msg import Marker
 from std_msgs.msg import String
-from nav_msgs.srv import GetMap
+from geometry_msgs.msg import PoseArray
 
 
 class Publishsers():
-    def range_make_msg(self, x, y):
-        self.range_rviz.header.stamp = rospy.Time.now()
-        self.range_rviz.ns = "basic_shapes"
-        self.range_rviz.id = 0
 
-        self.range_rviz.action = Marker.ADD
-
-        self.range_rviz.pose.position.x = 0
-        self.range_rviz.pose.position.y = 0
-        self.range_rviz.pose.position.z = 0.15
-
-        self.range_rviz.pose.orientation.x=0.0
-        self.range_rviz.pose.orientation.y=0.0
-        self.range_rviz.pose.orientation.z=0.0
-        self.range_rviz.pose.orientation.w=0.0
-
-        self.range_rviz.color.r = 0.0
-        self.range_rviz.color.g = 1.0
-        self.range_rviz.color.b = 0.0
-        self.range_rviz.color.a = 0.5
-
-        self.range_rviz.scale.x = 5
-        self.range_rviz.scale.y = 5
-        self.range_rviz.scale.z = 0.1
-
-        self.range_rviz.lifetime = rospy.Duration()
-
-        self.range_rviz.type = 3
-        self.range_pub.publish(self.range_rviz)
-
-    def trajectory_make_msg(self, x, y):
-        pass
+    def prediction_msg(self, x, y, count):
+        self.prediction_msg.poses[count].position.x = x
+        self.prediction_msg.poses[count].position.y = y
 
     def optimize_make_msg(self, x, y):
         pass
@@ -53,60 +24,62 @@ class Publishsers():
 
 class Server(Publishsers):
     def __init__(self):
-        # get map_data
-        self.map_service = rospy.ServiceProxy('static_map', GetMap)
-        self.map_data = self.map_service()
-
-        # Marker Array for rviz
-        self.range_rviz = Marker()
-        self.range_rviz.header.frame_id = "base_link"
 
         # message for result topic
         self.result = String()
 
         # numpy array for person xy
         self.people1 = np.zeros((100,2))
+        self.past_x = 0.0
+        self.past_y = 0.0
+
+        # get current time
+        self.now = rospy.get_time()
+        self.past = rospy.get_time()
 
         # Declaration Publisher
-        self.range_pub = rospy.Publisher("/range_pub", Marker, queue_size = 10)
-        self.trajectory_pub = rospy.Publisher("/trajectory_pub", Marker, queue_size = 10)
-        self.optimize_pub = rospy.Publisher("/optimize_pub", Marker, queue_size = 10)
+        # self.trajectory_pub = rospy.Publisher("/trajectory_pub", Marker, queue_size = 10)
+        self.prediction_pub = rospy.Publisher("/target_human/prediction", PoseArray, queue_size = 10)
 
+        # Declaration message
+        self.prediction_msg = PoseArray()
 
         # Declaration Subscriber
         self.ptm_sub = rospy.Subscriber('/people_tracker_measurements', PositionMeasurementArray , self.ptm_callback)
 
     ### callback function for /people_tracker_measurements ###
     def ptm_callback(self, msg):
-        ud_person_distance = 5.0
-        x = 0
-        y = 0
-        person_name = ""
+        current_x = 0.0
+        current_y = 0.0
+        diff_time = 0.0
 
         # people found
         if msg.people:
+            target_name = rospy.get_param('/target_human/name')
             for i in msg.people:
-                d = math.sqrt((i.pos.x - self.amcl_pose_x) ** 2 + (i.pos.y - self.amcl_pose_y) ** 2)
-                if d < ud_person_distance:
-                    person_name = i.name
-                    x = i.pos.x
-                    y = i.pos.y
-                    # rospy.set_param('/target_person_name', person_name)
-            # print x, y
+                if i.name == target_name:
+                    # get target human information
+                    current_x = i.pos.x
+                    current_y = i.pos.y
+                    self.now = rospy.get_time()
 
-            if (self.map_data.map.data[ int(y / self.map_data.map.info.resolution) * self.map_data.map.info.width + int(x / self.map_data.map.info.resolution)] != 100):
-                self.people1 = np.append(self.people1, np.array([[x, y]]), axis=0)
-                # print self.people1
-                self.result.data = person_name
-                self.result_pub.publish(self.result)
-            else:
-                self.result.data = "nohuman"
-                self.result_pub.publish(self.result)
+                    # calculate prediction_human pose
+                    current_x -= self.past_x
+                    current_y -= self.past_y
+                    diff_time = self.now - self.past
+                    scale = 1.0 / diff_time
+                    for count in range(5):
+                        self.prediction_msg(current_x * scale * (count+1), current_y * scale * (count+1), count)
+                    self.prediction_pub.publish(self.prediction_msg)
+
+                    # set old data
+                    self.past = self.now
+                    self.past_x = current_x
+                    self.past_y = current_y
 
         # people not found
         else:
-            self.result.data = "nohuman"
-            self.result_pub.publish(self.result)
+            pass
 
 
 
