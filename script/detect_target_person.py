@@ -84,7 +84,7 @@ class Subscribe(Publishsers):
         ud_person_distance = 5.0
         x = 0
         y = 0
-        person_name = ""
+        person_name = "nohuman"
 
         # people found
         if msg.people:
