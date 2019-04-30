@@ -24,7 +24,7 @@ class Patrol(smach.State):
         if responce.result.data == "nohuman":
             return 'to_Pa'
         else:
-            rospy.set_param('/target_person_name', responce.result.data)
+            rospy.set_param('/target_human/name', responce.result.data)
             return 'success'
 
 class Decide(smach.State):
