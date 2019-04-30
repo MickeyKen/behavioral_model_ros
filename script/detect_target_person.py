@@ -64,7 +64,7 @@ class Server(Publishsers):
         self.amcl_pose_y = 0.0
 
         # Declaration Publisher
-        self.range_pub = rospy.Publisher("/range_pub", Marker, queue_size = 10)
+        self.range_pub = rospy.Publisher("/target_human_marker", Marker, queue_size = 10)
         self.result_pub = rospy.Publisher("/ptm/server/result", String, queue_size = 10)
 
         # Declaration Subscriber
