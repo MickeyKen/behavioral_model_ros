@@ -7,41 +7,16 @@ import math
 from people_msgs.msg import PositionMeasurementArray
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import PoseWithCovariance
-from visualization_msgs.msg import Marker
 from std_msgs.msg import String
 from nav_msgs.srv import GetMap
+from geometry_msgs.msg import Pose
 
 
 class Publishsers():
-    def make_msg(self, x, y):
-        self.range_rviz.header.stamp = rospy.Time.now()
-        self.range_rviz.ns = "basic_shapes"
-        self.range_rviz.id = 0
-
-        self.range_rviz.action = Marker.ADD
-
-        self.range_rviz.pose.position.x = 0
-        self.range_rviz.pose.position.y = 0
-        self.range_rviz.pose.position.z = 0.15
-
-        self.range_rviz.pose.orientation.x=0.0
-        self.range_rviz.pose.orientation.y=0.0
-        self.range_rviz.pose.orientation.z=0.0
-        self.range_rviz.pose.orientation.w=0.0
-
-        self.range_rviz.color.r = 0.0
-        self.range_rviz.color.g = 1.0
-        self.range_rviz.color.b = 0.0
-        self.range_rviz.color.a = 0.5
-
-        self.range_rviz.scale.x = 5
-        self.range_rviz.scale.y = 5
-        self.range_rviz.scale.z = 0.1
-
-        self.range_rviz.lifetime = rospy.Duration()
-
-        self.range_rviz.type = 3
-        self.range_pub.publish(self.range_rviz)
+    def pub_msg(self, x, y):
+        self.pose_msg.position.x = x
+        self.pose_msg.position.y = y
+        self.pose_pub.publish(self.pose_msg)
 
 class Subscribe(Publishsers):
     def __init__(self):
@@ -50,8 +25,7 @@ class Subscribe(Publishsers):
         self.map_data = self.map_service()
 
         # Marker Array for rviz
-        self.range_rviz = Marker()
-        self.range_rviz.header.frame_id = "base_link"
+        self.pose_msg = Pose()
 
         # message for result topic
         self.result = String()
@@ -64,7 +38,7 @@ class Subscribe(Publishsers):
         self.amcl_pose_y = 0.0
 
         # Declaration Publisher
-        self.range_pub = rospy.Publisher("/target_human_marker", Marker, queue_size = 10)
+        self.pose_pub = rospy.Publisher("/target_human/pose", Pose, queue_size = 10)
         self.result_pub = rospy.Publisher("/ptm/server/result", String, queue_size = 10)
 
         # Declaration Subscriber
@@ -76,7 +50,6 @@ class Subscribe(Publishsers):
     def pose_callback(self, msg):
         self.amcl_pose_x = msg.pose.pose.position.x
         self.amcl_pose_y = msg.pose.pose.position.y
-        # self.make_msg(msg.pose.pose.position.x, msg.pose.pose.position.y)
 
 
     ### callback function for /people_tracker_measurements ###
@@ -99,8 +72,11 @@ class Subscribe(Publishsers):
             # print x, y
 
             if (self.map_data.map.data[ int(y / self.map_data.map.info.resolution) * self.map_data.map.info.width + int(x / self.map_data.map.info.resolution)] != 100):
+                #store target_huan_pose
                 self.people1 = np.append(self.people1, np.array([[x, y]]), axis=0)
-                # print self.people1
+                #publish target_human_pose for rviz
+                self.pub_msg(i.pos.x, i.pos.y)
+                #publish person_name
                 self.result.data = person_name
                 self.result_pub.publish(self.result)
             else:
