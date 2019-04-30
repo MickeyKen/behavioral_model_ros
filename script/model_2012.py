@@ -118,22 +118,22 @@ if __name__ == '__main__':
                                             'to_Pa': 'patrol'})
 
         smach.StateMachine.add('Search_and_Wander', sw_sub,
-                               transitions={'success': 'Approach'})
+                               transitions={'success': 'success'})
 
 
         ## start Approach ###
-        a_sub = smach.StateMachine(outcomes=['success'])
-        with a_sub:
-            smach.StateMachine.add('decide_optimize_point', Decide(),
-                               transitions={'to_SW':'Search_and_Wander',
-                                            'to_Go':'go_pose'})
-
-            smach.StateMachine.add('go_pose', Go(),
-                               transitions={'to_Pa':'patrol',
-                                            'success':'success'})
-
-        smach.StateMachine.add('Approach', a_sub,
-                               transitions={'success': 'success'})
+        # a_sub = smach.StateMachine(outcomes=['success'])
+        # with a_sub:
+        #     smach.StateMachine.add('decide_optimize_point', Decide(),
+        #                        transitions={'to_SW':'Search_and_Wander',
+        #                                     'to_Go':'go_pose'})
+        #
+        #     smach.StateMachine.add('go_pose', Go(),
+        #                        transitions={'to_Pa':'patrol',
+        #                                     'success':'success'})
+        #
+        # smach.StateMachine.add('Approach', a_sub,
+        #                        transitions={'success': 'success'})
 
         #
         # ### Start Provide ###
