@@ -43,7 +43,7 @@ class Publishsers():
         self.range_rviz.type = 3
         self.range_pub.publish(self.range_rviz)
 
-class Server(Publishsers):
+class Subscribe(Publishsers):
     def __init__(self):
         # get map_data
         self.map_service = rospy.ServiceProxy('static_map', GetMap)
@@ -94,6 +94,7 @@ class Server(Publishsers):
                     person_name = i.name
                     x = i.pos.x
                     y = i.pos.y
+                    ud_person_distance = d
                     # rospy.set_param('/target_person_name', person_name)
             # print x, y
 
@@ -116,7 +117,7 @@ class Server(Publishsers):
 if __name__ == '__main__':
     rospy.init_node('detect_person_server')
 
-    server = Server()
+    Subscribe = Subscribe()
 
     # rospy.Subscriber('/people_tracker_measurements', PositionMeasurementArray , server.ptm_callback)
     # rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, server.pose_callback)
