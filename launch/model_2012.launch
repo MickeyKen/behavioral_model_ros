@@ -4,9 +4,10 @@
     <node name="smach_node" pkg="behavioral_model" type="model_2012.py" output="screen"/>
     <node name="smach_viewer" pkg="smach_viewer" type="smach_viewer.py" output="screen" />
 
-    <!-- serveer node for smach -->
+    <!-- server node for smach -->
     <node name="patrol_server" pkg="behavioral_model" type="patrol_node" output="screen"/>
-    <node name="detect_optimazed_point_server" pkg="behavioral_model" type="people_measurement_sub.py" output="screen" />
+    <node name="detect_optimazed_point_server" pkg="behavioral_model" type="detect_target_person.py" output="screen" />
+    <node name="mimic_target_human_node" pkg="behavioral_model" type="mimic_target_human_node" output="screen" />
 
     <!-- launch merger lrf -->
     <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
