@@ -23,7 +23,39 @@ Mimic::Mimic()
 
 void Mimic::poseCallback(const geometry_msgs::PoseConstPtr& pose)
 {
-  
+  visualization_msgs::Marker marker_body;
+  // visualization_msgs::Marker marker_head;
+
+  marker_body.header.frame_id = "/map";
+  marker_body.header.stamp = ros::Time::now();
+
+  marker_body.ns = "basic_shapes";
+  marker_body.id = 0;
+  marker_body.type = 3;
+  marker_body.action = visualization_msgs::Marker::ADD;
+  marker_body.pose.position.x = pose->position.x;
+  marker_body.pose.position.y = pose->position.y;
+  marker_body.pose.position.z = 0;
+  marker_body.pose.orientation.x = 0.0;
+  marker_body.pose.orientation.y = 0.0;
+  marker_body.pose.orientation.z = 0.0;
+  marker_body.pose.orientation.w = 1.0;
+
+  // Set the scale of the marker -- 1x1x1 here means 1m on a side
+  marker_body.scale.x = 1.0;
+  marker_body.scale.y = 1.0;
+  marker_body.scale.z = 1.7;
+
+  // Set the color -- be sure to set alpha to something non-zero!
+  marker_body.color.r = 1.0f;
+  marker_body.color.g = 0.0f;
+  marker_body.color.b = 0.0f;
+  marker_body.color.a = 1.0;
+
+  marker_body.lifetime = ros::Duration();
+
+
+  marker_pub_.publish(marker_body);
 }
 int main(int argc, char** argv)
 {
