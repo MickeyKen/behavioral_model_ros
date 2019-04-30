@@ -141,6 +141,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/behavioral_model_node.cpp)
 add_executable(patrol_node src/patrol.cpp)
+add_executable(mimic_target_human_node src/mimic_target_human.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -157,6 +158,9 @@ add_executable(patrol_node src/patrol.cpp)
 #   ${catkin_LIBRARIES}
 # )
 target_link_libraries(patrol_node
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(mimic_target_human_node
   ${catkin_LIBRARIES}
 )
 #############
