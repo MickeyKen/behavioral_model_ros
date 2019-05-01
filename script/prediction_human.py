@@ -89,7 +89,7 @@ class Server(Publishsers):
                         # init PoseArray() and create and publish
                         self.prediction_msg = PoseArray()
                         for count in range(5):
-                            self.prediction_make(diff_x * scale * (count+1), diff_y * scale * (count+1))
+                            self.prediction_make((diff_x * scale * (count+1)) + current_x, (diff_y * scale * (count+1)) + current_y)
                         self.prediction_msg.header.stamp = rospy.Time.now()
                         self.prediction_msg.header.frame_id = "/base_scan"
                         self.prediction_pub.publish(self.prediction_msg)
