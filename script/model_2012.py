@@ -15,6 +15,7 @@ class Patrol(smach.State):
         smach.State.__init__(self, outcomes=['to_Pa', 'success'])
 
     def execute(self, userdata):
+        rospy.set_param('/target_human/name', "")
         request = rospy.ServiceProxy('/search/target_human', AddPoseRetStr)
         pose = PoseStamped()
         responce = request(pose)
