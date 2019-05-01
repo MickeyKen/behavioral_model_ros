@@ -8,14 +8,24 @@ from people_msgs.msg import PositionMeasurementArray
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import PoseWithCovariance
 from std_msgs.msg import String
-from geometry_msgs.msg import PoseArray
+from geometry_msgs.msg import PoseArray, Pose
 
 
 class Publishsers():
 
-    def prediction_msg(self, x, y, count):
-        self.prediction_msg.poses[count].position.x = x
-        self.prediction_msg.poses[count].position.y = y
+    def prediction_make(self, x, y):
+        pose_msg = Pose()
+
+        pose_msg.position.x = x
+        pose_msg.position.y = y
+        pose_msg.position.z = 0.0
+
+        pose_msg.orientation.x = 0.0
+        pose_msg.orientation.y = 0.0
+        pose_msg.orientation.z = 0.0
+        pose_msg.orientation.w = 1.0
+
+        self.prediction_msg.poses.append(pose_msg)
 
     def optimize_make_msg(self, x, y):
         pass
@@ -24,6 +34,8 @@ class Publishsers():
 
 class Server(Publishsers):
     def __init__(self):
+
+        rospy.set_param('/target_human/name', "")
 
         # message for result topic
         self.result = String()
@@ -52,6 +64,8 @@ class Server(Publishsers):
         current_x = 0.0
         current_y = 0.0
         diff_time = 0.0
+        diff_x = 0.0
+        diff_y = 0.0
 
         # people found
         if msg.people:
@@ -64,18 +78,30 @@ class Server(Publishsers):
                     self.now = rospy.get_time()
 
                     # calculate prediction_human pose
-                    current_x -= self.past_x
-                    current_y -= self.past_y
+                    diff_x = current_x - self.past_x
+                    diff_y = current_y - self.past_y
+                    # print diff_x, diff_y
+                    # print current_x, current_y
                     diff_time = self.now - self.past
-                    scale = 1.0 / diff_time
-                    for count in range(5):
-                        self.prediction_msg(current_x * scale * (count+1), current_y * scale * (count+1), count)
-                    self.prediction_pub.publish(self.prediction_msg)
+                    # print diff_time
+                    if diff_time != 0.0:
+                        scale = 1.0 / diff_time
+                        # print scale
 
-                    # set old data
-                    self.past = self.now
-                    self.past_x = current_x
-                    self.past_y = current_y
+                        # init PoseArray() and create and publish
+                        self.prediction_msg = PoseArray()
+                        for count in range(5):
+                            self.prediction_make(diff_x * scale * (count+1), diff_y * scale * (count+1))
+                        self.prediction_msg.header.stamp = rospy.Time.now()
+                        self.prediction_msg.header.frame_id = "/base_scan"
+                        # print self.prediction_msg
+                        # print "==================-"
+                        self.prediction_pub.publish(self.prediction_msg)
+
+                        # set old data
+                        self.past = self.now
+                        self.past_x = current_x
+                        self.past_y = current_y
 
         # people not found
         else:
