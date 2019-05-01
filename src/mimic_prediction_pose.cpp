@@ -19,8 +19,8 @@ Mimic::Mimic()
 {
   ros::NodeHandle input_nh("input");
   ros::NodeHandle output_nh("output");
-  markerarray_pub_ = output_nh.advertise<visualization_msgs::Marker> ("/target_human/marker", 1);
-  posearray_sub_ = input_nh.subscribe<geometry_msgs::PoseArray> ("/target_human/prediction", 1, &Mimic::posearrayCallback, this);
+  markerarray_pub_ = output_nh.advertise<visualization_msgs::MarkerArray> ("/target_human/prediction/marker", 1);
+  posearray_sub_ = input_nh.subscribe<geometry_msgs::PoseArray> ("/target_human/prediction/pose", 1, &Mimic::posearrayCallback, this);
 }
 
 void Mimic::posearrayCallback(const geometry_msgs::PoseArrayConstPtr& poses)
