@@ -7,7 +7,10 @@
     <!-- server node for smach -->
     <node name="patrol_server" pkg="behavioral_model" type="patrol_node" output="screen"/>
     <node name="detect_optimazed_point_server" pkg="behavioral_model" type="detect_target_person.py" output="screen" />
+
+    <!-- rviz marker node -->
     <node name="mimic_target_human_node" pkg="behavioral_model" type="mimic_target_human_node" output="screen" />
+    <node name="mimic_prediction_pose_node" pkg="behavioral_model" type="mimic_prediction_pose_node" output="screen" />
 
     <!-- launch merger lrf -->
     <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
