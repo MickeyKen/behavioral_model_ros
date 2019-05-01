@@ -77,13 +77,11 @@ class Server(Publishsers):
                     current_y = i.pos.y
                     self.now = rospy.get_time()
 
-                    # calculate prediction_human pose
+                    # calculate prediction_human pose and time
                     diff_x = current_x - self.past_x
                     diff_y = current_y - self.past_y
-                    # print diff_x, diff_y
-                    # print current_x, current_y
                     diff_time = self.now - self.past
-                    # print diff_time
+
                     if diff_time != 0.0:
                         scale = 1.0 / diff_time
                         # print scale
@@ -94,8 +92,6 @@ class Server(Publishsers):
                             self.prediction_make(diff_x * scale * (count+1), diff_y * scale * (count+1))
                         self.prediction_msg.header.stamp = rospy.Time.now()
                         self.prediction_msg.header.frame_id = "/base_scan"
-                        # print self.prediction_msg
-                        # print "==================-"
                         self.prediction_pub.publish(self.prediction_msg)
 
                         # set old data
