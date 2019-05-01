@@ -142,6 +142,7 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/behavioral_model_node.cpp)
 add_executable(patrol_node src/patrol.cpp)
 add_executable(mimic_target_human_node src/mimic_target_human.cpp)
+add_executable(mimic_prediction_pose_node src/mimic_prediction_pose.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -161,6 +162,9 @@ target_link_libraries(patrol_node
   ${catkin_LIBRARIES}
 )
 target_link_libraries(mimic_target_human_node
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(mimic_prediction_pose_node
   ${catkin_LIBRARIES}
 )
 #############
