@@ -84,6 +84,7 @@ class Server(Publishsers):
 
                     if diff_time != 0.0:
                         scale = 1.0 / diff_time
+                        print scale
                         # print scale
 
                         # init PoseArray() and create and publish
