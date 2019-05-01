@@ -51,7 +51,7 @@ class Server(Publishsers):
 
         # Declaration Publisher
         # self.trajectory_pub = rospy.Publisher("/trajectory_pub", Marker, queue_size = 10)
-        self.prediction_pub = rospy.Publisher("/target_human/prediction", PoseArray, queue_size = 10)
+        self.prediction_pub = rospy.Publisher("/target_human/prediction/pose", PoseArray, queue_size = 10)
 
         # Declaration message
         self.prediction_msg = PoseArray()
