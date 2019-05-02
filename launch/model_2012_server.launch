@@ -5,7 +5,10 @@
     <node name="prediction_human_pose_server" pkg="behavioral_model" type="prediction_human.py" output="screen" />
 
     <!-- rviz marker node -->
-    <!--node name="mimic_target_human_node" pkg="behavioral_model" type="mimic_target_human_node" output="screen" />
-    <node name="mimic_prediction_pose_node" pkg="behavioral_model" type="mimic_prediction_pose_node" output="screen" /-->
+    <node name="mimic_target_human_node" pkg="behavioral_model" type="mimic_target_human_node" output="screen" />
+    <node name="mimic_prediction_pose_node" pkg="behavioral_model" type="mimic_prediction_pose_node" output="screen" />
+
+    <!-- load rviz config -->
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find behavioral_model)/rviz/2012.rviz" />
 
 </launch>
