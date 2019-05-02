@@ -52,8 +52,7 @@ void Mimic::poseCallback(const geometry_msgs::PoseConstPtr& pose)
   marker_body.color.b = 0.0f;
   marker_body.color.a = 1.0;
 
-  marker_body.lifetime = ros::Duration();
-
+  marker_body.lifetime = ros::Duration(0.5);
 
   marker_pub_.publish(marker_body);
 }

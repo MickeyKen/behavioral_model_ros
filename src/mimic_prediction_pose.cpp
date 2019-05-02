@@ -56,7 +56,8 @@ void Mimic::posearrayCallback(const geometry_msgs::PoseArrayConstPtr& poses)
     marker.color.b = 0.9f;
     marker.color.a = 1.0;
 
-    marker.lifetime = ros::Duration();
+    marker.lifetime = ros::Duration(0.5);
+
     markers.markers.push_back(marker);
 
   }
