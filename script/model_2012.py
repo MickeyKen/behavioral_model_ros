@@ -28,21 +28,42 @@ class Patrol(smach.State):
             rospy.set_param('/target_human/name', responce.result.data)
             return 'success'
 
-class Decide(smach.State):
+class Prediction(smach.State):
     def __init__(self):
-        smach.State.__init__(self, outcomes=['to_SW', 'to_Go'])
+        smach.State.__init__(self, outcomes=['to_De', 'to_SW'])
 
     def execute(self, userdata):
-        request = rospy.ServiceProxy('/detect/optimize_point', AddPoseRetStr)
-        pose = PoseStamped()
-        responce = request(pose)
+        if random.random() > 0.5:
+            return 'to_De'
+
+        return 'to_SW'
 
         # print responce.result.da
 
+class Decide(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['to_Go', 'to_SW'])
+
+    def execute(self, userdata):
+        # request = rospy.ServiceProxy('/detect/optimize_point', AddPoseRetStr)
+        # pose = PoseStamped()
+        # responce = request(pose)
+        if random.random() > 0.5:
+            return 'to_Go'
+
+        return 'to_SW'
+        # print responce.result.da
+
+class Go(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['success'])
+
+    def execute(self, userdata):
+        return 'success'
 
 class Calc_pose(smach.State):
     def __init__(self):
-        smach.State.__init__(self, outcomes=['success', 'to_Pa'])
+        smach.State.__init__(self, outcomes=['success', 'to_SW'])
 
     def execute(self, userdata):
         rospy.loginfo('Executing int state BSTATE')
@@ -51,20 +72,20 @@ class Calc_pose(smach.State):
         if random.random() > 0.5:
             return 'success'
 
-        return 'to_Pa'
+        return 'to_SW'
 
-class Approach(smach.State):
-    def __init__(self):
-        smach.State.__init__(self, outcomes=['to_SW', 'to_P'])
-
-    def execute(self, userdata):
-        rospy.loginfo('Executing int state BSTATE')
-        rospy.sleep(1)
-
-        if random.random() > 0.5:
-            return 'to_SW'
-
-        return 'to_P'
+# class Approach(smach.State):
+#     def __init__(self):
+#         smach.State.__init__(self, outcomes=['to_SW', 'to_P'])
+#
+#     def execute(self, userdata):
+#         rospy.loginfo('Executing int state BSTATE')
+#         rospy.sleep(1)
+#
+#         if random.random() > 0.5:
+#             return 'to_SW'
+#
+#         return 'to_P'
 
 class Provide(smach.State):
     def __init__(self):
@@ -119,22 +140,26 @@ if __name__ == '__main__':
                                             'to_Pa': 'patrol'})
 
         smach.StateMachine.add('Search_and_Wander', sw_sub,
-                               transitions={'success': 'success'})
+                               transitions={'success': 'Approach'})
 
 
-        ## start Approach ###
-        # a_sub = smach.StateMachine(outcomes=['success'])
-        # with a_sub:
-        #     smach.StateMachine.add('decide_optimize_point', Decide(),
-        #                        transitions={'to_SW':'Search_and_Wander',
-        #                                     'to_Go':'go_pose'})
-        #
-        #     smach.StateMachine.add('go_pose', Go(),
-        #                        transitions={'to_Pa':'patrol',
-        #                                     'success':'success'})
-        #
-        # smach.StateMachine.add('Approach', a_sub,
-        #                        transitions={'success': 'success'})
+        # start Approach ###
+        a_sub = smach.StateMachine(outcomes=['success', 'to_SW'])
+        with a_sub:
+            smach.StateMachine.add('prediction_human', Prediction(),
+                               transitions={'to_De':'decide_optimize_point',
+                                            'to_SW':'to_SW'})
+
+            smach.StateMachine.add('decide_optimize_point', Decide(),
+                               transitions={'to_Go':'go_point',
+                                            'to_SW':'to_SW'})
+
+            smach.StateMachine.add('go_point', Go(),
+                               transitions={'success':'success'})
+
+        smach.StateMachine.add('Approach', a_sub,
+                               transitions={'success': 'success',
+                                            'to_SW': 'Search_and_Wander'})
 
         #
         # ### Start Provide ###
