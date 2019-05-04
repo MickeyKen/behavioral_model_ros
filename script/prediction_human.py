@@ -9,7 +9,8 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import PoseWithCovariance
 from std_msgs.msg import String
 from geometry_msgs.msg import PoseArray, Pose
-
+from behavioral_model.srv import AddPoseRetStr
+from behavioral_model.srv import AddPoseRetStrResponse
 
 class Publishsers():
 
@@ -59,6 +60,10 @@ class Server(Publishsers):
         # Declaration Subscriber
         self.ptm_sub = rospy.Subscriber('/people_tracker_measurements', PositionMeasurementArray , self.ptm_callback)
 
+        # Declaration Service Server
+        self.server = rospy.Service("/prediction/target_human", AddPoseRetStr, self.service_callback)
+
+
     ### callback function for /people_tracker_measurements ###
     def ptm_callback(self, msg):
         current_x = 0.0
@@ -102,6 +107,12 @@ class Server(Publishsers):
         else:
             pass
 
+    def service_callback(self, req):
+        return_string = String()
+        print req.target_pose.pose.position.x
+
+        return_string.data = "true"
+        return AddPoseRetStrResponse(return_string)
 
 
 if __name__ == '__main__':
