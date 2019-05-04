@@ -31,6 +31,32 @@ class Publishsers():
     def optimize_make_msg(self, x, y):
         pass
 
+    def filter(self):
+        u = np.zeros((1,4))
+        F = np.eye(4)
+        P = np.array([[0., 0., 0., 0.],[0., 0., 0., 0.],[0., 0., 1000., 0.],[0., 0., 0., 1000.]])
+        H = np.array([[1., 0., 0., 0.],[0., 1., 0., 0.]])
+        R = np.array([[0.1, 0.],[0., 0.1]])
+        I = np.eye(4)
+        for n in range(len(self.measurements)):
+
+            F[0][2] = self.dt[n]
+            F[1][3] = self.dt[n]
+
+            # prediction
+            self.x = (F * self.x) + u
+            P = F * P * F.T
+
+            # measurement update
+            Z = matrix([self.measurements[n]])
+            y = Z.T - (H * self.x)
+            S = H * P * H.T + R
+            K = P * H.T * np.linalg.det(S)
+            self.x = self.x + (K * y)
+            P = (I - (K * H)) * P
+
+        return self.x, P
+
 
 
 class Server(Publishsers):
@@ -42,9 +68,24 @@ class Server(Publishsers):
         self.result = String()
 
         # numpy array for person xy
-        self.people1 = np.zeros((100,2))
+        self.measurements = np.empty((100,2))
+        self.dtArr = np.empty(100)
         self.past_x = 0.0
         self.past_y = 0.0
+
+        # for kalman filter
+        self.x = np.zeros((1,4))
+        # self.u = np.zeros((1,4))
+        # self.P = np.array([[0., 0., 0., 0.],[0., 0., 0., 0.],[0., 0., 1000., 0.],[0., 0., 0., 1000.]])
+        # self.F = np.eye(4)
+        # self.H = np.array([[1., 0., 0., 0.],[0., 1., 0., 0.]])
+        # self.R = np.array([[0.1, 0.],[0., 0.1]])
+        # self.I = np.eye(4)
+
+        # prepare x,y for initial_pose(self.x)
+        self.current_x = 0.0
+        self.current_y = 0.0
+
 
         # get current time
         self.now = rospy.get_time()
@@ -66,9 +107,7 @@ class Server(Publishsers):
 
     ### callback function for /people_tracker_measurements ###
     def ptm_callback(self, msg):
-        current_x = 0.0
-        current_y = 0.0
-        diff_time = 0.0
+        dt = 0.0
         diff_x = 0.0
         diff_y = 0.0
 
@@ -77,31 +116,15 @@ class Server(Publishsers):
             target_name = rospy.get_param('/target_human/name')
             for i in msg.people:
                 if i.name == target_name:
-                    # get target human information
-                    current_x = i.pos.x
-                    current_y = i.pos.y
-                    self.now = rospy.get_time()
+                    if len(self.measurements) == 0:
+                        self.x[0][0] = i.pos.x
+                        self.y[1][0] = i.pos.y
+                    else:
+                        self.now = rospy.get_time()
+                        dt = self.now - self.past
+                        np.append(self.measurements, [[i.pos.x,i.pos.y]], axis=0)
+                        np.append(self.dtArr, [dt], axis=0)
 
-                    # calculate prediction_human pose and time
-                    diff_x = current_x - self.past_x
-                    diff_y = current_y - self.past_y
-                    diff_time = self.now - self.past
-
-                    if diff_time != 0.0:
-                        scale = 1.0 / diff_time
-
-                        # init PoseArray() and create and publish
-                        self.prediction_msg = PoseArray()
-                        for count in range(5):
-                            self.prediction_make((diff_x * scale * (count+1)) + current_x, (diff_y * scale * (count+1)) + current_y)
-                        self.prediction_msg.header.stamp = rospy.Time.now()
-                        self.prediction_msg.header.frame_id = "/base_scan"
-                        self.prediction_pub.publish(self.prediction_msg)
-
-                        # set old data
-                        self.past = self.now
-                        self.past_x = current_x
-                        self.past_y = current_y
 
         # people not found
         else:
@@ -110,6 +133,26 @@ class Server(Publishsers):
     def service_callback(self, req):
         return_string = String()
         print req.target_pose.pose.position.x
+
+        self.x = np.zeros((1,4))
+        self.measurements = np.empty(100)
+        self.dtArr = np.empty(100)
+
+        rospy.sleep(1.0)
+
+        x, P = self.filter()
+        print x
+        print P
+
+
+        # init PoseArray() and create and publish
+        # self.prediction_msg = PoseArray()
+        # for i in pose:
+        #     self.prediction_make(pose[i]][0],pose[i][1])
+        # self.prediction_msg.header.stamp = rospy.Time.now()
+        # self.prediction_msg.header.frame_id = "/base_scan"
+        # self.prediction_pub.publish(self.prediction_msg)
+
 
         return_string.data = "true"
         return AddPoseRetStrResponse(return_string)
