@@ -33,7 +33,10 @@ class Prediction(smach.State):
         smach.State.__init__(self, outcomes=['to_De', 'to_SW'])
 
     def execute(self, userdata):
-        if random.random() > 0.5:
+        request = rospy.ServiceProxy('/prediction/target_human', AddPoseRetStr)
+        pose = PoseStamped()
+        responce = request(pose)
+        if responce.result.data == "true":
             return 'to_De'
 
         return 'to_SW'
