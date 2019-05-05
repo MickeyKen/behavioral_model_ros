@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <actionlib_msgs/GoalID.h>
 #include "behavioral_model/AddPoseRetStr.h"
 #include "std_msgs/String.h"
 #include "std_msgs/Header.h"
@@ -23,7 +24,7 @@ public:
   void loop();
 
 private:
-  ros::Publisher nav_pub;
+  ros::Publisher nav_pub,can_pub;
   ros::Subscriber human_sub;
   ros::NodeHandle nh;
   ros::ServiceServer service;
@@ -32,6 +33,7 @@ private:
   tf::StampedTransform transform;
 
   geometry_msgs::PoseStamped a_pose, b_pose, c_pose, d_pose, ex_pose;
+  actionlib_msgs::GoalID cancel_msg;
 
   const static double a_x = 0.1;
 
@@ -53,7 +55,9 @@ Server::Server()
 
   service = nh.advertiseService("/search/target_human",&Server::PatrolService,this);
 
-  nav_pub= nh.advertise<geometry_msgs::PoseStamped>("/move_base_simple/goal", 10);
+  nav_pub = nh.advertise<geometry_msgs::PoseStamped>("/move_base_simple/goal", 10);
+
+  can_pub = nh.advertise<actionlib_msgs::GoalID>("/move_base/cancel", 10);
 
   // human_sub = nh.subscribe("/people_tracker_measurements", 10, &Server::poseCallback, this);
   human_sub = nh.subscribe("/ptm/server/result", 10, &Server::poseCallback, this);
@@ -111,6 +115,7 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
     while (1) {
       if (flag == 1) {
         // ss = "human";
+        can_pub.publish(cancel_msg);
         res.result.data = ss;
         return true;
 
