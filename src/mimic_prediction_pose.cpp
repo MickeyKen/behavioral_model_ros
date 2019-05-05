@@ -29,7 +29,7 @@ void Mimic::posearrayCallback(const geometry_msgs::PoseArrayConstPtr& poses)
   for (int i = 0; i < 5; i++) {
     visualization_msgs::Marker marker;
 
-    marker.header.frame_id = "/map";
+    marker.header.frame_id = "/base_scan";
     marker.header.stamp = ros::Time::now();
 
     marker.ns = "prediction marker";
@@ -56,7 +56,7 @@ void Mimic::posearrayCallback(const geometry_msgs::PoseArrayConstPtr& poses)
     marker.color.b = 0.9f;
     marker.color.a = 1.0;
 
-    marker.lifetime = ros::Duration(0.5);
+    marker.lifetime = ros::Duration(5);
 
     markers.markers.push_back(marker);
 
