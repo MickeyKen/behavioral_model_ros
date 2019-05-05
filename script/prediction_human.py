@@ -118,12 +118,12 @@ class Server(Publishsers):
                 if i.name == target_name:
                     if len(self.measurements) == 0:
                         self.x[0][0] = i.pos.x
-                        self.y[1][0] = i.pos.y
+                        self.x[0][1] = i.pos.y
                     else:
                         self.now = rospy.get_time()
                         dt = self.now - self.past
-                        np.append(self.measurements, [[i.pos.x,i.pos.y]], axis=0)
-                        np.append(self.dtArr, [dt], axis=0)
+                        self.measurements = np.append(self.measurements, [[i.pos.x,i.pos.y]], axis=0)
+                        self.dtArr = np.append(self.dtArr, [[dt]], axis=0)
 
 
         # people not found
