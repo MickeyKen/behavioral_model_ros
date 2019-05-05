@@ -9,6 +9,8 @@ Panels:
         - /MarkerArray1
         - /Marker1
         - /LaserScan1
+        - /MarkerArray2
+        - /MarkerArray2/Status1
       Splitter Ratio: 0.5
     Tree Height: 219
   - Class: rviz/Selection
@@ -362,14 +364,6 @@ Visualization Manager:
       Value: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /target_human/marker
-      Name: Marker
-      Namespaces:
-        basic_shapes: true
-      Queue Size: 100
-      Value: true
-    - Class: rviz/Marker
-      Enabled: true
       Marker Topic: /visualization_marker
       Name: Marker
       Namespaces:
@@ -417,6 +411,14 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /target_human/marker
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -442,25 +444,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 10.1283817
+      Distance: 22.390625
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.89235884
-        Y: 0.0775614232
-        Z: 0.33315894
+        X: -2.75487733
+        Y: -4.56437683
+        Z: 2.89361644
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.339797378
+      Pitch: 1.07479692
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 6.08358431
+      Yaw: 4.9035821
     Saved: ~
 Window Geometry:
   Displays:
