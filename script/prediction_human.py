@@ -54,7 +54,7 @@ class Publishsers():
 
 
             # measurement update
-            Z = np.matrix([self.measurements[n]])
+            Z = np.array([self.measurements[n]])
             # y = Z.T - (H * self.x)
             y = Z.T - np.dot(H, self.x)
 
@@ -69,6 +69,11 @@ class Publishsers():
 
             # P = (I - (K * H)) * P
             P = np.dot((I - np.dot(K, H)), P)
+
+        # print type(self.x)
+        # for i in range(3):
+        #     self.x = np.delete(self.x, i, 1)
+        print self.x[0][0]
 
         return self.x, P
 
