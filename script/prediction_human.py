@@ -38,24 +38,37 @@ class Publishsers():
         H = np.array([[1., 0., 0., 0.],[0., 1., 0., 0.]])
         R = np.array([[0.1, 0.],[0., 0.1]])
         I = np.eye(4)
-        print self.measurements
-        print self.x
+        # print self.measurements
+        # print self.x
         for n in range(len(self.measurements)):
 
             F[0][2] = self.dtArr[n]
             F[1][3] = self.dtArr[n]
 
             # prediction
-            self.x = (F * self.x) + u
-            P = F * P * F.T
+            # self.x = (F * self.x) + u
+            self.x = np.dot(F, self.x) + u
+            # P = F * P * F.T
+            P = np.dot(np.dot(F, P), F.T)
+
+
 
             # measurement update
             Z = np.matrix([self.measurements[n]])
-            y = Z.T - (H * self.x.T)
-            S = H * P * H.T + R
-            K = P * H.T * np.linalg.det(S)
-            self.x.T = self.x.T + (K * y)
-            P = (I - (K * H)) * P
+            # y = Z.T - (H * self.x)
+            y = Z.T - np.dot(H, self.x)
+
+            # S = H * P * H.T + R
+            S = np.dot(np.dot(H, P), H.T) + R
+
+            # K = P * H.T * np.linalg.inv(S)
+            K = np.dot(np.dot(P, H.T), np.linalg.inv(S))
+
+            # self.x = self.x + (K * y)
+            self.x = self.x + np.dot(K, y)
+
+            # P = (I - (K * H)) * P
+            P = np.dot((I - np.dot(K, H)), P)
 
         return self.x, P
 
@@ -76,7 +89,7 @@ class Server(Publishsers):
         self.past_y = 0.0
 
         # for kalman filter
-        self.x = np.zeros((1,4))
+        # self.x = np.zeros((1,4))
         # self.u = np.zeros((1,4))
         # self.P = np.array([[0., 0., 0., 0.],[0., 0., 0., 0.],[0., 0., 1000., 0.],[0., 0., 0., 1000.]])
         # self.F = np.eye(4)
@@ -118,9 +131,9 @@ class Server(Publishsers):
             target_name = rospy.get_param('/target_human/name')
             for i in msg.people:
                 if i.name == target_name:
-                    if self.x[0][0] == 0 and self.x[0][1] == 0:
+                    if self.x[0][0] == 0.0 and self.x[1][0] == 0.0:
                         self.x[0][0] = i.pos.x
-                        self.x[0][1] = i.pos.y
+                        self.x[1][0] = i.pos.y
                     else:
                         print "pass"
                         self.now = rospy.get_time()
@@ -136,9 +149,10 @@ class Server(Publishsers):
 
     def service_callback(self, req):
         return_string = String()
-        print req.target_pose.pose.position.x
+        # print req.target_pose.pose.position.x
 
-        self.x = np.zeros((1,4))
+        # self.x = np.zeros((4,1))
+        self.x = np.array([[0.], [0.], [0.], [0.]])
         self.measurements = np.empty((0,2))
         self.dtArr = np.empty(0)
 
