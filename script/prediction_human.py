@@ -162,7 +162,7 @@ class Server(Publishsers):
         self.dtArr = np.empty(0)
 
         # rospy.spin()
-        rospy.sleep(1.0)
+        rospy.sleep(0.7)
 
         x, P = self.filter()
 
