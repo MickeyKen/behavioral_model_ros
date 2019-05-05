@@ -50,11 +50,11 @@ class Publishsers():
             P = F * P * F.T
 
             # measurement update
-            Z = self.measurements[n]
-            y = Z.T - (H * self.x)
+            Z = np.matrix([self.measurements[n]])
+            y = Z.T - (H * self.x.T)
             S = H * P * H.T + R
             K = P * H.T * np.linalg.det(S)
-            self.x = self.x + (K * y)
+            self.x.T = self.x.T + (K * y)
             P = (I - (K * H)) * P
 
         return self.x, P
