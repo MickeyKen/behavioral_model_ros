@@ -38,17 +38,19 @@ class Publishsers():
         H = np.array([[1., 0., 0., 0.],[0., 1., 0., 0.]])
         R = np.array([[0.1, 0.],[0., 0.1]])
         I = np.eye(4)
+        print self.measurements
+        print self.x
         for n in range(len(self.measurements)):
 
-            F[0][2] = self.dt[n]
-            F[1][3] = self.dt[n]
+            F[0][2] = self.dtArr[n]
+            F[1][3] = self.dtArr[n]
 
             # prediction
             self.x = (F * self.x) + u
             P = F * P * F.T
 
             # measurement update
-            Z = matrix([self.measurements[n]])
+            Z = self.measurements[n]
             y = Z.T - (H * self.x)
             S = H * P * H.T + R
             K = P * H.T * np.linalg.det(S)
@@ -116,14 +118,16 @@ class Server(Publishsers):
             target_name = rospy.get_param('/target_human/name')
             for i in msg.people:
                 if i.name == target_name:
-                    if len(self.measurements) == 0:
+                    if self.x[0][0] == 0 and self.x[0][1] == 0:
                         self.x[0][0] = i.pos.x
                         self.x[0][1] = i.pos.y
                     else:
+                        print "pass"
                         self.now = rospy.get_time()
                         dt = self.now - self.past
                         self.measurements = np.append(self.measurements, [[i.pos.x,i.pos.y]], axis=0)
-                        self.dtArr = np.append(self.dtArr, [[dt]], axis=0)
+                        self.dtArr = np.append(self.dtArr, [dt], axis=0)
+                        self.past = self.now
 
 
         # people not found
@@ -138,6 +142,7 @@ class Server(Publishsers):
         self.measurements = np.empty((0,2))
         self.dtArr = np.empty(0)
 
+        # rospy.spin()
         rospy.sleep(1.0)
 
         x, P = self.filter()
