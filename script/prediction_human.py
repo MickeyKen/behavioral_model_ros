@@ -135,8 +135,8 @@ class Server(Publishsers):
         print req.target_pose.pose.position.x
 
         self.x = np.zeros((1,4))
-        self.measurements = np.empty(100)
-        self.dtArr = np.empty(100)
+        self.measurements = np.empty((0,2))
+        self.dtArr = np.empty(0)
 
         rospy.sleep(1.0)
 
