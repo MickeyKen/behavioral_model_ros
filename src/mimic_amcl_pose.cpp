@@ -1,8 +1,7 @@
 #include <ros/ros.h>
 #include <visualization_msgs/Marker.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <visualization_msgs/MarkerArray.h>
-
+#include <geometry_msgs/PoseWithCovarianceStamped.h>
 
 class Mimic
 {
@@ -25,36 +24,39 @@ Mimic::Mimic()
 
 void Mimic::amclCallback(const geometry_msgs::PoseWithCovarianceStampedConstPtr& poses)
 {
-    visualization_msgs::Marker marker;
 
-    marker.header.frame_id = "/map";
-    marker.header.stamp = ros::Time::now();
+  visualization_msgs::Marker marker;
 
-    marker.ns = "prediction marker";
-    marker.id = 0;
-    marker.type = visualization_msgs::Marker::CUBE;
-    marker.action = visualization_msgs::Marker::ADD;
+  marker.header.frame_id = "/map";
+  marker.header.stamp = ros::Time::now();
 
-    marker.pose.position.x = poses->pose.pose.position.x;
-    marker.pose.position.y = poses->pose.pose.position.y;
-    marker.pose.position.z = 0.85;
-    marker.pose.orientation.x = 0.0;
-    marker.pose.orientation.y = 0.0;
-    marker.pose.orientation.z = 0.0;
-    marker.pose.orientation.w = 1.0;
+  marker.ns = "search_area";
+  marker.id = 0;
+  marker.type = visualization_msgs::Marker::CYLINDER;
+  marker.action = visualization_msgs::Marker::ADD;
 
-    // Set the scale of the marker -- 1x1x1 here means 1m on a side
-    marker.scale.x = 0.3;
-    marker.scale.y = 0.3;
-    marker.scale.z = 0.3;
+  marker.pose.position.x = poses->pose.pose.position.x;
+  marker.pose.position.y = poses->pose.pose.position.y;
+  marker.pose.position.z = 0.2;
+  marker.pose.orientation.x = 0.0;
+  marker.pose.orientation.y = 0.0;
+  marker.pose.orientation.z = 0.0;
+  marker.pose.orientation.w = 1.0;
 
-    // Set the color -- be sure to set alpha to something non-zero!
-    marker.color.r = 0.7f;
-    marker.color.g = 0.7f;
-    marker.color.b = 0.9f;
-    marker.color.a = 1.0;
+  // Set the scale of the marker -- 1x1x1 here means 1m on a side
+  marker.scale.x = 5.0;
+  marker.scale.y = 5.0;
+  marker.scale.z = 0.1;
 
-    marker.lifetime = ros::Duration(0.5);
+  // Set the color -- be sure to set alpha to something non-zero!
+  marker.color.r = 0.2f;
+  marker.color.g = 0.9f;
+  marker.color.b = 0.3f;
+  marker.color.a = 0.8;
+
+  marker.lifetime = ros::Duration(0.5);
+
+  marker_pub_.publish(marker);
 }
 
 
