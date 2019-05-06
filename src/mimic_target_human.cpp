@@ -28,7 +28,7 @@ void Mimic::poseCallback(const geometry_msgs::PoseConstPtr& pose)
   visualization_msgs::Marker marker_body;
   visualization_msgs::Marker marker_head;
 
-  marker_body.header.frame_id = "/base_scan";
+  marker_body.header.frame_id = "/map";
   marker_body.header.stamp = ros::Time::now();
 
   marker_body.ns = "basic_shapes";
@@ -57,7 +57,7 @@ void Mimic::poseCallback(const geometry_msgs::PoseConstPtr& pose)
   marker_body.lifetime = ros::Duration(0.5);
   markers.markers.push_back(marker_body);
 
-  marker_head.header.frame_id = "/base_scan";
+  marker_head.header.frame_id = "/map";
   marker_head.header.stamp = ros::Time::now();
 
   marker_head.ns = "basic_shapes";
