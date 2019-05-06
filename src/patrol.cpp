@@ -68,20 +68,20 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
                           behavioral_model::AddPoseRetStr::Response &res)
 {
   a_pose.header.frame_id = "map";
-  a_pose.pose.position.x =  1.0;
-  a_pose.pose.position.y =  0.0;
+  a_pose.pose.position.x =  -1.0;
+  a_pose.pose.position.y =  2.0;
   a_pose.pose.orientation.w = 1.0;
   b_pose.header.frame_id = "map";
   b_pose.pose.position.x =  -1.0;
   b_pose.pose.position.y =  0.0;
   b_pose.pose.orientation.w = 1.0;
   c_pose.header.frame_id = "map";
-  c_pose.pose.position.x =  -1.0;
-  c_pose.pose.position.y =  2.0;
+  c_pose.pose.position.x =  1.0;
+  c_pose.pose.position.y =  0.0;
   c_pose.pose.orientation.w = 1.0;
   d_pose.header.frame_id = "map";
   d_pose.pose.position.x =  1.0;
-  d_pose.pose.position.y =  1.0;
+  d_pose.pose.position.y =  2.0;
   d_pose.pose.orientation.w = 1.0;
 
   double target_x = 0.0;
