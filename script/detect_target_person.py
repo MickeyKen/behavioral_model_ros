@@ -61,8 +61,10 @@ class Subscribe(Publishsers):
 
         # people found
         if msg.people:
+
+            # search minimum distance between US and target_human
             for i in msg.people:
-                d = math.sqrt((i.pos.x - self.amcl_pose_x) ** 2 + (i.pos.y - self.amcl_pose_y) ** 2)
+                d = math.sqrt(((i.pos.x - self.amcl_pose_x) ** 2) + ((i.pos.y - self.amcl_pose_y) ** 2))
                 if d < ud_person_distance:
                     person_name = i.name
                     x = i.pos.x
@@ -71,9 +73,8 @@ class Subscribe(Publishsers):
                     # rospy.set_param('/target_person_name', person_name)
             # print x, y
 
+            # check static map
             if (self.map_data.map.data[ int(y / self.map_data.map.info.resolution) * self.map_data.map.info.width + int(x / self.map_data.map.info.resolution)] != 100):
-                #store target_huan_pose
-                self.people1 = np.append(self.people1, np.array([[x, y]]), axis=0)
                 #publish target_human_pose for rviz
                 self.pub_msg(i.pos.x, i.pos.y)
                 #publish person_name
