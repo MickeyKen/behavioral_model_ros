@@ -92,15 +92,6 @@ class Server(Publishsers):
         self.past_x = 0.0
         self.past_y = 0.0
 
-        # for kalman filter
-        # self.x = np.zeros((1,4))
-        # self.u = np.zeros((1,4))
-        # self.P = np.array([[0., 0., 0., 0.],[0., 0., 0., 0.],[0., 0., 1000., 0.],[0., 0., 0., 1000.]])
-        # self.F = np.eye(4)
-        # self.H = np.array([[1., 0., 0., 0.],[0., 1., 0., 0.]])
-        # self.R = np.array([[0.1, 0.],[0., 0.1]])
-        # self.I = np.eye(4)
-
         # prepare x,y for initial_pose(self.x)
         self.current_x = 0.0
         self.current_y = 0.0
@@ -138,7 +129,7 @@ class Server(Publishsers):
                     if self.x[0][0] == 0.0 and self.x[1][0] == 0.0:
                         self.x[0][0] = i.pos.x
                         self.x[1][0] = i.pos.y
-                        self.now = rospy.get_time()
+                        self.past = rospy.get_time()
                     else:
                         # print "pass"
                         self.now = rospy.get_time()
