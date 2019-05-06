@@ -153,7 +153,7 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
 // void Server::poseCallback(const people_msgs::PositionMeasurementArray::ConstPtr& pose)
 void Server::poseCallback(const std_msgs::String::ConstPtr& pose)
 {
-  std::cout << "cmoplete:" << pose->data << std::endl;
+  // std::cout << "cmoplete:" << pose->data << std::endl;
   if (pose->data == "nohuman") {
     ss = "nohuman";
     flag = 0;
