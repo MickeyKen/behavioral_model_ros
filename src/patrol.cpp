@@ -112,12 +112,14 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
       nav_pub.publish(d_pose);
     }
 
-    while (1) {
+    ros::Rate loop_rate(20);
+    while (ros::ok())
+    {
       if (flag == 1) {
-        // ss = "human";
-        can_pub.publish(cancel_msg);
-        res.result.data = ss;
-        return true;
+            // ss = "human";
+            can_pub.publish(cancel_msg);
+            res.result.data = ss;
+            return true;
 
       } else {
 
@@ -135,6 +137,8 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
             transform.getOrigin().y() > (-offset_y + target_y) && transform.getOrigin().y() < (offset_y + target_y))
             break;
       }
+      ros::spinOnce();
+      loop_rate.sleep();
     }
   }
 
@@ -149,11 +153,11 @@ bool Server::PatrolService(behavioral_model::AddPoseRetStr::Request  &req,
 // void Server::poseCallback(const people_msgs::PositionMeasurementArray::ConstPtr& pose)
 void Server::poseCallback(const std_msgs::String::ConstPtr& pose)
 {
+  std::cout << "cmoplete:" << pose->data << std::endl;
   if (pose->data == "nohuman") {
     ss = "nohuman";
     flag = 0;
-  }
-  else {
+  } else {
     ss = pose->data;
     flag = 1;
   }
