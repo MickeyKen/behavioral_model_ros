@@ -11,6 +11,8 @@ from std_msgs.msg import String
 from nav_msgs.srv import GetMap
 from geometry_msgs.msg import Pose
 
+import message_filters
+
 
 class Publishsers():
     def pub_msg(self, x, y):
@@ -43,7 +45,11 @@ class Subscribe(Publishsers):
 
         # Declaration Subscriber
         self.pose_sub = rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, self.pose_callback)
-        self.ptm_sub = rospy.Subscriber('/people_tracker_measurements', PositionMeasurementArray , self.ptm_callback)
+        self.ptm_sub = message_filters.Subscriber('/people_tracker_measurements', PositionMeasurementArray)
+        self.leg_sub = message_filters.Subscriber('/leg_tracker_measurements', PositionMeasurementArray)
+
+        ts = message_filters.ApproximateTimeSynchronizer([self.ptm_sub, self.leg_sub], 10, 0.1, allow_headerless=True)
+        ts.registerCallback(self.callback)
 
 
     ### callback function for amcl node (pose) ###
@@ -53,11 +59,14 @@ class Subscribe(Publishsers):
 
 
     ### callback function for /people_tracker_measurements ###
-    def ptm_callback(self, msg):
+    def callback(self, msg, leg):
         ud_person_distance = 5.0
         x = 0
         y = 0
         person_name = "nohuman"
+        leg_name = ""
+        # print msg
+        # print leg
 
         # people found
         if msg.people:
@@ -70,8 +79,12 @@ class Subscribe(Publishsers):
                     x = i.pos.x
                     y = i.pos.y
                     ud_person_distance = d
-                    # rospy.set_param('/target_person_name', person_name)
-            # print x, y
+                    leg_name = i.object_id
+
+            # split leg name leg_list[0],leg_list[1]
+            leg_list = leg_name.split('|')
+            # for j in leg.people:
+            #     if d.name == leg_list[0] or d.name == leg_li
 
             # check static map
             if (self.map_data.map.data[ int(y / self.map_data.map.info.resolution) * self.map_data.map.info.width + int(x / self.map_data.map.info.resolution)] != 100):
