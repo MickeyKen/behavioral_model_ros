@@ -1,7 +1,7 @@
 <launch>
     <!-- server node -->
     <node name="patrol_server" pkg="behavioral_model" type="patrol_node" output="screen"/>
-    <node name="detect_optimazed_point_server" pkg="behavioral_model" type="detect_target_person.py" output="screen" />
+    <node name="detect_target_server" pkg="behavioral_model" type="detect_target_person.py" output="screen" />
     <node name="prediction_human_pose_server" pkg="behavioral_model" type="prediction_human.py" output="screen" />
 
     <!-- rviz marker node -->

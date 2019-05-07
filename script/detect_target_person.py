@@ -61,12 +61,11 @@ class Subscribe(Publishsers):
     ### callback function for /people_tracker_measurements ###
     def callback(self, msg, leg):
         ud_person_distance = 5.0
-        x = 0
-        y = 0
+        x = 1000.0
+        y = 1000.0
         person_name = "nohuman"
         leg_name = ""
-        # print msg
-        # print leg
+        self.result.data = person_name
 
         # people found
         if msg.people:
@@ -81,26 +80,31 @@ class Subscribe(Publishsers):
                     ud_person_distance = d
                     leg_name = i.object_id
 
-            # split leg name leg_list[0],leg_list[1]
-            leg_list = leg_name.split('|')
-            # for j in leg.people:
-            #     if d.name == leg_list[0] or d.name == leg_li
+            if leg_name != "":
+                # split leg name leg_list[0],leg_list[1]
+                leg_list = leg_name.split('|')
+                for j in leg.people:
+                    if j.object_id == leg_list[0] or j.object_id == leg_list[1]:
+                        print "pass"
+                        print self.map_data.map.info.width
+                        print self.map_data.map.info.height
+                        # print ((int((j.pos.y / self.map_data.map.info.resolution)-1) * self.map_data.map.info.width)+ int(j.pos.x / self.map_data.map.info.resolution))
+                        # check static map
+                        if (self.map_data.map.data[((int((j.pos.y / self.map_data.map.info.resolution)-1) * self.map_data.map.info.width)+ int(j.pos.x / self.map_data.map.info.resolution))] == 100):
+                            #publish person_name
+                            self.result.data = "nohuman"
+                            break
+                        else:
+                            self.result.data = person_name
+                            #publish target_human_pose for rviz
+                            self.pub_msg(x, y)
 
-            # check static map
-            if (self.map_data.map.data[ int(y / self.map_data.map.info.resolution) * self.map_data.map.info.width + int(x / self.map_data.map.info.resolution)] != 100):
-                #publish target_human_pose for rviz
-                self.pub_msg(i.pos.x, i.pos.y)
-                #publish person_name
-                self.result.data = person_name
-                self.result_pub.publish(self.result)
-            else:
-                self.result.data = "nohuman"
-                self.result_pub.publish(self.result)
 
         # people not found
         else:
             self.result.data = "nohuman"
-            self.result_pub.publish(self.result)
+
+        self.result_pub.publish(self.result)
 
 
 
