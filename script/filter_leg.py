@@ -17,14 +17,12 @@ class Subscribe():
         self.map_service = rospy.ServiceProxy('static_map', GetMap)
         self.map_data = self.map_service()
 
-
         # Declaration Publisher
         self.pose_pub = rospy.Publisher("/filter/people_tracker_measurement", PositionMeasurementArray, queue_size = 10)
 
-        # Declaration Subscriber
+        # Declaration Subscriber (message_filters)
         self.ptm_sub = message_filters.Subscriber('/people_tracker_measurements', PositionMeasurementArray)
         self.leg_sub = message_filters.Subscriber('/leg_tracker_measurements', PositionMeasurementArray)
-
         ts = message_filters.ApproximateTimeSynchronizer([self.ptm_sub, self.leg_sub], 10, 0.1, allow_headerless=True)
         ts.registerCallback(self.callback)
 
