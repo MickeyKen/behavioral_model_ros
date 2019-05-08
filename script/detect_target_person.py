@@ -85,9 +85,9 @@ class Subscribe(Publishsers):
                 leg_list = leg_name.split('|')
                 for j in leg.people:
                     if j.object_id == leg_list[0] or j.object_id == leg_list[1]:
-                        print "pass"
-                        print self.map_data.map.info.width
-                        print self.map_data.map.info.height
+                        # print "pass"
+                        # print self.map_data.map.info.width
+                        # print self.map_data.map.info.height
                         # print ((int((j.pos.y / self.map_data.map.info.resolution)-1) * self.map_data.map.info.width)+ int(j.pos.x / self.map_data.map.info.resolution))
                         # check static map
                         if (self.map_data.map.data[((int((j.pos.y / self.map_data.map.info.resolution)-1) * self.map_data.map.info.width)+ int(j.pos.x / self.map_data.map.info.resolution))] == 100):
