@@ -37,6 +37,7 @@ class Subscribe():
 
         # people found
         if msg.people:
+            filterArray_msg.header = msg.header
 
             # search minimum distance between US and target_human
             for i in msg.people:
