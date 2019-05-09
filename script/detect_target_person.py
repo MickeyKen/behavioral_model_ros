@@ -4,7 +4,7 @@ import rospy
 import numpy as np
 import math
 
-from people_msgs.msg import PositionMeasurementArray
+from people_msgs.msg import PositionMeasurementArray, PositionMeasurement
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import PoseWithCovariance
 from std_msgs.msg import String
@@ -63,9 +63,11 @@ class Subscribe(Publishsers):
         ud_person_distance = 5.0
         x = 1000.0
         y = 1000.0
+        min_person = PositionMeasurement()
         person_name = "nohuman"
         leg_name = ""
         self.result.data = person_name
+        both_leg_counter = 0
 
         # people found
         if msg.people:
@@ -74,30 +76,37 @@ class Subscribe(Publishsers):
             for i in msg.people:
                 d = math.sqrt(((i.pos.x - self.amcl_pose_x) ** 2) + ((i.pos.y - self.amcl_pose_y) ** 2))
                 if d < ud_person_distance:
-                    person_name = i.name
-                    x = i.pos.x
-                    y = i.pos.y
+                    # person_name = i.name
+                    # x = i.pos.x
+                    # y = i.pos.y
                     ud_person_distance = d
                     leg_name = i.object_id
 
-            if leg_name != "":
-                # split leg name leg_list[0],leg_list[1]
-                leg_list = leg_name.split('|')
-                for j in leg.people:
-                    if j.object_id == leg_list[0] or j.object_id == leg_list[1]:
-                        # print "pass"
-                        # print self.map_data.map.info.width
-                        # print self.map_data.map.info.height
-                        # print ((int((j.pos.y / self.map_data.map.info.resolution)-1) * self.map_data.map.info.width)+ int(j.pos.x / self.map_data.map.info.resolution))
-                        # check static map
-                        if (self.map_data.map.data[((int((j.pos.y / self.map_data.map.info.resolution)-1) * self.map_data.map.info.width)+ int(j.pos.x / self.map_data.map.info.resolution))] == 100):
-                            #publish person_name
-                            self.result.data = "nohuman"
-                            break
-                        else:
-                            self.result.data = person_name
-                            #publish target_human_pose for rviz
-                            self.pub_msg(x, y)
+                    # check leg_position comparing static_map
+                    if leg_name != "":
+                        # split leg name leg_list[0],leg_list[1]
+                        leg_list = leg_name.split('|')
+                        for j in leg.people:
+                            if j.object_id == leg_list[0] or j.object_id == leg_list[1]:
+                                # print "pass"
+                                # print self.map_data.map.info.width
+                                # print self.map_data.map.info.height
+                                # print ((int((abs(j.pos.y) / self.map_data.map.info.resolution)-1) * self.map_data.map.info.width)+ int(abs(j.pos.x) / self.map_data.map.info.resolution))
+                                # check static map
+                                map_occ = ((int((j.pos.y / self.map_data.map.info.resolution)-1) * self.map_data.map.info.width)+ int(j.pos.x / self.map_data.map.info.resolution)+2000)
+                                if (self.map_data.map.data[map_occ] == 0):
+                                    both_leg_counter += 1
+                                else:
+                                    pass
+                    if both_leg_counter == 2:
+                        min_person = i
+                    #initiala counter
+                    both_leg_counter = 0
+
+                if min_person.name != "":
+                    self.result.data = min_person.name
+                    #publish target_human_pose for rviz
+                    self.pub_msg(min_person.pos.x, min_person.pos.y)
 
 
         # people not found
