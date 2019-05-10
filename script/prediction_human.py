@@ -159,8 +159,10 @@ class Server(Publishsers):
 
         # init PoseArray() and create and publish
         self.prediction_msg = PoseArray()
+        # set current_pose
+        self.prediction_make(x[0][0], x[1][0])
         for i in range(5):
-            self.prediction_make(x[0][0] + x[2][0] * (i + 1), x[1][0] + x[3][0] * (i + 1))
+            self.prediction_make(x[0][0] + (x[2][0] * (i + 1)), x[1][0] + (x[3][0] * (i + 1)))
         self.prediction_msg.header.stamp = rospy.Time.now()
         self.prediction_msg.header.frame_id = "/map"
         self.prediction_pub.publish(self.prediction_msg)

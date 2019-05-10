@@ -26,7 +26,7 @@ Mimic::Mimic()
 void Mimic::posearrayCallback(const geometry_msgs::PoseArrayConstPtr& poses)
 {
   visualization_msgs::MarkerArray markers;
-  for (int i = 0; i < 5; i++) {
+  for (int i = 1; i < 6; i++) {
     visualization_msgs::Marker marker;
 
     marker.header.frame_id = "/map";
