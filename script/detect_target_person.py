@@ -93,7 +93,7 @@ class Subscribe(Publishsers):
                                 # print self.map_data.map.info.height
                                 # print ((int((abs(j.pos.y) / self.map_data.map.info.resolution)-1) * self.map_data.map.info.width)+ int(abs(j.pos.x) / self.map_data.map.info.resolution))
                                 # check static map
-                                map_occ = ((int((j.pos.y / self.map_data.map.info.resolution)-1) * self.map_data.map.info.width)+ int(j.pos.x / self.map_data.map.info.resolution)+2000)
+                                map_occ = ((int((j.pos.y / self.map_data.map.info.resolution)-1) * self.map_data.map.info.width)+ int(j.pos.x / self.map_data.map.info.resolution)+1900+(4000*1899))
                                 if (self.map_data.map.data[map_occ] == 0):
                                     both_leg_counter += 1
                                 else:
