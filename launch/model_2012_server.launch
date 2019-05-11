@@ -7,6 +7,7 @@
     <!-- rviz marker node -->
     <node name="mimic_target_human_node" pkg="behavioral_model" type="mimic_target_human_node" output="screen" />
     <node name="mimic_prediction_pose_node" pkg="behavioral_model" type="mimic_prediction_pose_node" output="screen" />
+    <node name="mimic_optimize_projection_pose_node" pkg="behavioral_model" type="mimic_optimize_projection_pose_node" output="screen" />
     <!--node name="mimic_amcl_pose_node" pkg="behavioral_model" type="mimic_amcl_pose_node" output="screen" /-->
 
     <!-- load rviz config -->
