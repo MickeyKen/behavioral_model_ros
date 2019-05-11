@@ -28,8 +28,20 @@ class Publishsers():
 
         self.prediction_msg.poses.append(pose_msg)
 
-    def optimize_make_msg(self, x, y):
-        pass
+    def optimize_make(self, x, y):
+        print x,y
+        pose_projection_msg = Pose()
+
+        pose_projection_msg.position.x = x
+        pose_projection_msg.position.y = y
+        pose_projection_msg.position.z = 0.0
+
+        pose_projection_msg.orientation.x = 0.0
+        pose_projection_msg.orientation.y = 0.0
+        pose_projection_msg.orientation.z = 0.0
+        pose_projection_msg.orientation.w = 1.0
+
+        self.prediction_projection_msg.poses.append(pose_projection_msg)
 
     def filter(self):
         u = np.zeros((1,4))
@@ -91,6 +103,7 @@ class Server(Publishsers):
         self.dtArr = np.empty(100)
         self.past_x = 0.0
         self.past_y = 0.0
+        self.x = np.array([[0.], [0.], [0.], [0.]])
 
         # prepare x,y for initial_pose(self.x)
         self.current_x = 0.0
@@ -104,9 +117,11 @@ class Server(Publishsers):
         # Declaration Publisher
         # self.trajectory_pub = rospy.Publisher("/trajectory_pub", Marker, queue_size = 10)
         self.prediction_pub = rospy.Publisher("/target_human/prediction/pose", PoseArray, queue_size = 10)
+        self.prediction_projection_pub = rospy.Publisher("/target_human/prediction/projection/pose", PoseArray, queue_size = 10)
 
         # Declaration message
         self.prediction_msg = PoseArray()
+        self.prediction_projection_msg = PoseArray()
 
         # Declaration Subscriber
         self.ptm_sub = rospy.Subscriber('/people_tracker_measurements', PositionMeasurementArray , self.ptm_callback)
@@ -152,6 +167,8 @@ class Server(Publishsers):
         self.measurements = np.empty((0,2))
         self.dtArr = np.empty(0)
 
+        d = 0.0
+
         # rospy.spin()
         rospy.sleep(0.7)
 
@@ -159,13 +176,38 @@ class Server(Publishsers):
 
         # init PoseArray() and create and publish
         self.prediction_msg = PoseArray()
+        self.prediction_projection_msg = PoseArray()
+
         # set current_pose
         self.prediction_make(x[0][0], x[1][0])
+
+        # calculate theta
+        radian = math.atan2(x[2][0] * 100.0, x[3][0] * 100.0)
+        if x[2][0] != 0:
+            scale_x = (2.5 * math.sin(radian)) / x[2][0]
+        else:
+            scale_x = 0.0
+        if x[3][0] != 0:
+            scale_y = (2.5 * math.cos(radian)) / x[3][0]
+        else:
+            scale_y = 0.0
+
+        # calculate prediction point
         for i in range(5):
             self.prediction_make(x[0][0] + (x[2][0] * (i + 1)), x[1][0] + (x[3][0] * (i + 1)))
+            self.optimize_make(x[0][0] + (x[2][0] * (i + 1)) + (x[2][0] * abs(scale_x)), x[1][0] + (x[3][0] * (i + 1)) + (x[3][0] * abs(scale_y)))
+
+        # publish prediction point of target human
         self.prediction_msg.header.stamp = rospy.Time.now()
         self.prediction_msg.header.frame_id = "/map"
         self.prediction_pub.publish(self.prediction_msg)
+
+        print "pass"
+
+        # publish optimize projection point
+        self.prediction_projection_msg.header.stamp = rospy.Time.now()
+        self.prediction_projection_msg.header.frame_id = "/map"
+        self.prediction_projection_pub.publish(self.prediction_projection_msg)
 
 
         return_string.data = "true"

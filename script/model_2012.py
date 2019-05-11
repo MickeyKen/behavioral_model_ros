@@ -150,12 +150,12 @@ if __name__ == '__main__':
         a_sub = smach.StateMachine(outcomes=['success', 'to_SW'])
         with a_sub:
             smach.StateMachine.add('prediction_human', Prediction(),
-                               transitions={'to_De':'decide_optimize_point',
+                               transitions={'to_De':'go_point',
                                             'to_SW':'to_SW'})
 
-            smach.StateMachine.add('decide_optimize_point', Decide(),
-                               transitions={'to_Go':'go_point',
-                                            'to_SW':'to_SW'})
+            # smach.StateMachine.add('decide_optimize_point', Decide(),
+            #                    transitions={'to_Go':'go_point',
+            #                                 'to_SW':'to_SW'})
 
             smach.StateMachine.add('go_point', Go(),
                                transitions={'success':'success'})
