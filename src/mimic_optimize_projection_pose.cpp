@@ -34,7 +34,7 @@ void Mimic::posearrayCallback(const geometry_msgs::PoseArrayConstPtr& poses)
 
     marker.ns = "prediction projection marker";
     marker.id = i+1;
-    marker.type = visualization_msgs::Marker::CYLINDER;
+    marker.type = visualization_msgs::Marker::CUBE;
     marker.action = visualization_msgs::Marker::ADD;
 
     marker.pose.position.x = poses->poses[i].position.x;
@@ -51,9 +51,9 @@ void Mimic::posearrayCallback(const geometry_msgs::PoseArrayConstPtr& poses)
     marker.scale.z = 0.1;
 
     // Set the color -- be sure to set alpha to something non-zero!
-    marker.color.r = 1.0f;
-    marker.color.g = 0.3f;
-    marker.color.b = 0.7f;
+    marker.color.r = 0.6f;
+    marker.color.g = 0.8f;
+    marker.color.b = 1.0f;
     marker.color.a = 1.0;
 
     marker.lifetime = ros::Duration(5);
