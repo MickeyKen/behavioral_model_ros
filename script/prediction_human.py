@@ -29,7 +29,6 @@ class Publishsers():
         self.prediction_msg.poses.append(pose_msg)
 
     def optimize_make(self, x, y):
-        print x,y
         pose_projection_msg = Pose()
 
         pose_projection_msg.position.x = x
@@ -201,8 +200,6 @@ class Server(Publishsers):
         self.prediction_msg.header.stamp = rospy.Time.now()
         self.prediction_msg.header.frame_id = "/map"
         self.prediction_pub.publish(self.prediction_msg)
-
-        print "pass"
 
         # publish optimize projection point
         self.prediction_projection_msg.header.stamp = rospy.Time.now()
