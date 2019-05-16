@@ -7,8 +7,9 @@ import random
 from smach_ros import ServiceState, SimpleActionState
 from geometry_msgs.msg import Pose, Quaternion, PoseStamped
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-from behavioral_model.srv import AddPoseRetStr
+from behavioral_model.srv import AddPoseRetStr, AddStrRetPose
 from people_msgs.msg import PositionMeasurementArray
+from std_msgs.msg import String
 
 class Patrol(smach.State):
     def __init__(self):
@@ -48,10 +49,12 @@ class Decide(smach.State):
         smach.State.__init__(self, outcomes=['to_Go', 'to_SW'])
 
     def execute(self, userdata):
-        # request = rospy.ServiceProxy('/detect/optimize_point', AddPoseRetStr)
-        # pose = PoseStamped()
-        # responce = request(pose)
-        if random.random() > 0.5:
+        request = rospy.ServiceProxy('/detection/optimize_point', AddStrRetPose)
+        req = String()
+        responce = request(req)
+        if responce.result_pose:
+            rospy.set_param('/optimize/point/x', responce.result_pose.pose.position.x)
+            rospy.set_param('/optimize/point/y', responce.result_pose.pose.position.y)
             return 'to_Go'
 
         return 'to_SW'
@@ -150,12 +153,12 @@ if __name__ == '__main__':
         a_sub = smach.StateMachine(outcomes=['success', 'to_SW'])
         with a_sub:
             smach.StateMachine.add('prediction_human', Prediction(),
-                               transitions={'to_De':'go_point',
+                               transitions={'to_De':'decide_optimize_point',
                                             'to_SW':'to_SW'})
 
-            # smach.StateMachine.add('decide_optimize_point', Decide(),
-            #                    transitions={'to_Go':'go_point',
-            #                                 'to_SW':'to_SW'})
+            smach.StateMachine.add('decide_optimize_point', Decide(),
+                               transitions={'to_Go':'go_point',
+                                            'to_SW':'to_SW'})
 
             smach.StateMachine.add('go_point', Go(),
                                transitions={'success':'success'})
