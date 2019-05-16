@@ -8,6 +8,7 @@ Panels:
         - /Status1
         - /MarkerArray2
         - /MarkerArray3
+        - /Marker2
       Splitter Ratio: 0.5
     Tree Height: 219
   - Class: rviz/Selection
@@ -364,7 +365,7 @@ Visualization Manager:
       Marker Topic: /target_human/prediction/marker
       Name: MarkerArray
       Namespaces:
-        {}
+        prediction marker: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -429,7 +430,15 @@ Visualization Manager:
       Marker Topic: /target_human/prediction/projection/marker
       Name: MarkerArray
       Namespaces:
-        {}
+        prediction projection marker: true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /optimize/pose/marker
+      Name: Marker
+      Namespaces:
+        optimize marker: true
       Queue Size: 100
       Value: true
   Enabled: true
@@ -457,7 +466,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 23.8799515
+      Distance: 9.93813896
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
@@ -472,10 +481,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.559797049
+      Pitch: 1.12979782
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.83358693
+      Yaw: 2.46858859
     Saved: ~
 Window Geometry:
   Displays:
