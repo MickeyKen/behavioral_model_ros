@@ -3,6 +3,7 @@
     <node name="patrol_server" pkg="behavioral_model" type="patrol_node" output="screen"/>
     <node name="detect_target_server" pkg="behavioral_model" type="detect_target_person.py" output="screen" />
     <node name="prediction_human_pose_server" pkg="behavioral_model" type="prediction_human.py" output="screen" />
+    <node name="detect_optimize_point_server" pkg="behavioral_model" type="detect_optimize_point.py" output="screen" />
 
     <!-- rviz marker node -->
     <node name="mimic_target_human_node" pkg="behavioral_model" type="mimic_target_human_node" output="screen" />
