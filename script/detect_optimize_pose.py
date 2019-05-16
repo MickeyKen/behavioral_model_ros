@@ -28,7 +28,7 @@ class Decide():
             RetPosition.y = ((self.human_pose[j][0] - self.projection_pose[j][0]) * math.sin(rad))+((self.human_pose[j][1] - self.projection_pose[j][1]) * math.cos(rad))+self.projection_pose[j][1]
 
             d = math.sqrt(((RetPosition.x - self.amcl_pose[0][0]) ** 2) + ((RetPosition.y - self.amcl_pose[0][1]) ** 2))
-            if d < (j + 1) * 0.5:
+            if d < (j + 1) * 0.8:
                 self.make_opt_pub(RetPosition.x, RetPosition.y)
                 RetOrientation.w = 1.0
                 break
