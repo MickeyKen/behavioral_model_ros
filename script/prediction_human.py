@@ -183,11 +183,11 @@ class Server(Publishsers):
         # calculate theta
         radian = math.atan2(x[2][0] * 100.0, x[3][0] * 100.0)
         if x[2][0] != 0:
-            scale_x = (2.5 * math.sin(radian)) / x[2][0]
+            scale_x = (2.0 * math.sin(radian)) / x[2][0]
         else:
             scale_x = 0.0
         if x[3][0] != 0:
-            scale_y = (2.5 * math.cos(radian)) / x[3][0]
+            scale_y = (2.0 * math.cos(radian)) / x[3][0]
         else:
             scale_y = 0.0
 
