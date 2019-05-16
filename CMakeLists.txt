@@ -147,6 +147,7 @@ add_executable(mimic_prediction_pose_node src/mimic_prediction_pose.cpp)
 add_executable(mimic_amcl_pose_node src/mimic_amcl_pose.cpp)
 add_executable(mimic_filter_target_human src/mimic_filter_target_human.cpp)
 add_executable(mimic_optimize_projection_pose_node src/mimic_optimize_projection_pose.cpp)
+add_executable(mimic_optimize_ud_pose_node src/mimic_optimize_ud_pose.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -178,6 +179,9 @@ target_link_libraries(mimic_filter_target_human
   ${catkin_LIBRARIES}
 )
 target_link_libraries(mimic_optimize_projection_pose_node
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(mimic_optimize_ud_pose_node
   ${catkin_LIBRARIES}
 )
 #############
