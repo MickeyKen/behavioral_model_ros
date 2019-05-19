@@ -36,18 +36,22 @@ class Subscribe():
         # people found
         if msg.people:
             filterArray_msg.header = msg.header
-
             # search minimum distance between US and target_human
             for i in msg.people:
                 leg_name = i.object_id
                 leg_list = leg_name.split('|')
+                print leg_list
                 for j in leg.people:
                     if j.object_id == leg_list[0] or j.object_id == leg_list[1]:
-                        if (self.map_data.map.data[((int((j.pos.y / self.map_data.map.info.resolution)-1) * self.map_data.map.info.width)+ int(j.pos.x / self.map_data.map.info.resolution))] != 100):
+                        map_occ = ((int((j.pos.y / self.map_data.map.info.resolution)-1) * self.map_data.map.info.width)+ int(j.pos.x / self.map_data.map.info.resolution)+1900+(4000*1899))
+                        print self.map_data.map.data[map_occ]
+                        if (self.map_data.map.data[map_occ] == 0):
                             leg_count += 1
                         else:
                             pass
+
                 if leg_count == 2:
+                    print "pass2"
                     filter_msg = i
                     filterArray_msg.people.append(filter_msg)
                 leg_count = 0
