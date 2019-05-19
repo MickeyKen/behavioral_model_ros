@@ -60,10 +60,13 @@ class Subscribe():
         for poe in poe.people:
             cell_x = int((poe.pos.x - self.origin_x) / self.resolution)
             cell_y = int((poe.pos.y - self.origin_y) / self.resolution)
-            print cell_x, cell_y
-            for i in range(self.width):
-                # self.heatmap_data[cell_x * cell_y] = 0
-                self.heatmap_data[i + (self.width * (cell_y -1))] = 0
+            # print cell_x, cell_y # [i + (self.width * (cell_y-1))]
+
+            ### for debug ###
+            # for i in range(self.width):
+            #     self.heatmap_data[i + (self.width * (cell_y-1))] = 0
+            # for j in range(self.height):
+            #     self.heatmap_data[cell_x + (j * self.width)] = 0
 
 
         self.heatmap_msg.data = self.heatmap_data
