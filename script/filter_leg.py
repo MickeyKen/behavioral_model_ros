@@ -41,6 +41,7 @@ class Subscribe():
         cell_x = 0
         cell_y = 0
         map_occ = 0
+        detect_flag = 0
 
         # people found
         if msg.people:
@@ -55,7 +56,15 @@ class Subscribe():
                         cell_y = int((j.pos.y - self.origin_y) / self.resolution)
                         map_occ = cell_x + (self.width * (cell_y - 1))
                         if (self.map_data.map.data[map_occ] == 0):
-                            leg_count += 1
+                            # for ang in range(0, 360, 60):
+                            #     rad = math.radians(ang)
+                            for c in range(1, 6):
+                                if self.map_data.map.data[map_occ + c] == 0 and self.map_data.map.data[map_occ + (self.width * c)] == 0 and self.map_data.map.data[map_occ - c] == 0 and self.map_data.map.data[map_occ - (self.width * c)] == 0:
+                                    pass
+                                else:
+                                    detect_flag = 1
+                            if detect_flag != 1:
+                                leg_count += 1
                         else:
                             pass
                 if leg_count == 2:
@@ -63,6 +72,7 @@ class Subscribe():
                     filterArray_msg.people.append(filter_msg)
                     leg_count = 0
 
+            filterArray_msg.header.stamp = rospy.Time.now()
             self.pose_pub.publish(filterArray_msg)
 
         # people not found
