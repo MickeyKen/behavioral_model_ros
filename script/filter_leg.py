@@ -17,6 +17,12 @@ class Subscribe():
         self.map_service = rospy.ServiceProxy('static_map', GetMap)
         self.map_data = self.map_service()
 
+        self.width = self.map_data.map.info.width
+        self.height = self.map_data.map.info.height
+        self.resolution = self.map_data.map.info.resolution
+        self.origin_x = self.map_data.map.info.origin.position.x
+        self.origin_y = self.map_data.map.info.origin.position.y
+
         # Declaration Publisher
         self.pose_pub = rospy.Publisher("/filter/people_tracker_measurement", PositionMeasurementArray, queue_size = 10)
 
@@ -32,6 +38,9 @@ class Subscribe():
         filterArray_msg = PositionMeasurementArray()
         filter_msg = PositionMeasurement()
         leg_count = 0
+        cell_x = 0
+        cell_y = 0
+        map_occ = 0
 
         # people found
         if msg.people:
@@ -40,21 +49,19 @@ class Subscribe():
             for i in msg.people:
                 leg_name = i.object_id
                 leg_list = leg_name.split('|')
-                print leg_list
                 for j in leg.people:
                     if j.object_id == leg_list[0] or j.object_id == leg_list[1]:
-                        map_occ = ((int((j.pos.y / self.map_data.map.info.resolution)-1) * self.map_data.map.info.width)+ int(j.pos.x / self.map_data.map.info.resolution)+1900+(4000*1899))
-                        print self.map_data.map.data[map_occ]
+                        cell_x = int((j.pos.x - self.origin_x) / self.resolution)
+                        cell_y = int((j.pos.y - self.origin_y) / self.resolution)
+                        map_occ = cell_x + (self.width * (cell_y - 1))
                         if (self.map_data.map.data[map_occ] == 0):
                             leg_count += 1
                         else:
                             pass
-
                 if leg_count == 2:
-                    print "pass2"
                     filter_msg = i
                     filterArray_msg.people.append(filter_msg)
-                leg_count = 0
+                    leg_count = 0
 
             self.pose_pub.publish(filterArray_msg)
 
