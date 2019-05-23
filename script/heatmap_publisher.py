@@ -44,7 +44,7 @@ class Subscribe():
         self.heatmap_pub = rospy.Publisher('my_heatmap', OccupancyGrid, queue_size=100)
 
         # Declaration Subscriber (message_filters)
-        self.ptm_sub = message_filters.Subscriber('/people_tracker_measurements', PositionMeasurementArray)
+        self.ptm_sub = message_filters.Subscriber('/filter/people_tracker_measurements', PositionMeasurementArray)
         self.leg_sub = message_filters.Subscriber('/leg_tracker_measurements', PositionMeasurementArray)
         ts = message_filters.ApproximateTimeSynchronizer([self.ptm_sub, self.leg_sub], 10, 0.1, allow_headerless=True)
         ts.registerCallback(self.callback)
