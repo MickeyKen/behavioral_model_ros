@@ -54,6 +54,8 @@ class Subscribe():
         self.heatmap_num = self.width * self.height
         self.heatmap_data = np.array(range(self.heatmap_num))
 
+        self.flag = 0
+
         # Declaration Publisher
         self.heatmap_pub = rospy.Publisher('my_heatmap', OccupancyGrid, queue_size=100)
 
@@ -68,94 +70,75 @@ class Subscribe():
         occ_x = 0
         occ_y = 0
 
-        for i in range(self.heatmap_num):
-            self.heatmap_data[i] = -1
+        if self.flag == 0:
 
-        evaluate_array = np.copy(self.heatmap_data)
+            for i in range(self.heatmap_num):
+                self.heatmap_data[i] = -1
 
-        # value_grid = np.zeros((100, 100))
+            evaluate_array = np.copy(self.heatmap_data)
 
-        # fix x,y(m) to cells (/people_tracker_measurements)
-        for poe in poe.people:
-            # get angle default 45?
-            target_angle = 270 - 45
-            cell_x = int((poe.pos.x - self.origin_x) / self.resolution)
-            cell_y = int((poe.pos.y - self.origin_y) / self.resolution)
-            occ = cell_x + (self.width * (cell_y-1))
+            value_grid = np.zeros((self.heatmap_num, 4))
+            # print value_grid
 
-            #calculate projection point (need reversion)
-            projection_cell_x = int((poe.pos.x - self.origin_x) / self.resolution)
-            projection_cell_y = int((poe.pos.y - self.origin_y - 2.5) / self.resolution)
+            # fix x,y(m) to cells (/people_tracker_measurements)
+            for poe in poe.people:
+                # get angle default 45?
+                target_angle = 270 - 45
+                cell_x = int((poe.pos.x - self.origin_x) / self.resolution)
+                cell_y = int((poe.pos.y - self.origin_y) / self.resolution)
+                occ = cell_x + (self.width * (cell_y-1))
 
-            #calculate angle usgin target_angle
-            view_cell_x = int((poe.pos.x - self.origin_x) / self.resolution)
-            view_cell_y = int((poe.pos.y - self.origin_y - 5.0) / self.resolution)
+                #calculate projection point (need reversion)
+                projection_cell_x = int((poe.pos.x - self.origin_x) / self.resolution)
+                projection_cell_y = int((poe.pos.y - self.origin_y - 2.5) / self.resolution)
 
-
-            ### personal_space
-            for ang in range(-60, 60):
-                rad = math.radians(target_angle + ang)
-                for c in range(self.personal_space_min, self.personal_space_max):
-                    occ_x = int((c * math.cos(rad)) - (c * math.sin(rad))) + cell_x
-                    occ_y = int((c * math.sin(rad)) + (c * math.cos(rad))) + cell_y
-                    self.heatmap_data[occ_x + (self.width * (occ_y-1))] = 30
-                    # evaluate_array[occ_x + (self.width * (occ_y-1))] = 30
-
-            ### limited_space
-            for dang in range(0, 360):
-                rad = math.radians(dang)
-                for d in range(self.limited_distance_min, self.limited_distance_max):
-                    occ_x = int((d * math.cos(rad)) - (d * math.sin(rad))) + projection_cell_x
-                    occ_y = int((d * math.sin(rad)) + (d * math.cos(rad))) + projection_cell_y
-                    if self.heatmap_data[occ_x + (self.width * (occ_y-1))] == 30:
-                        self.heatmap_data[occ_x + (self.width * (occ_y-1))] = 60
-                    else:
-                        self.heatmap_data[occ_x + (self.width * (occ_y-1))] = 20
-                    # evaluate_array[occ_x + (self.width * (occ_y-1))] = 60
-
-            ### eye view ###
-            for eang in range(15 + target_angle,30 + target_angle):
-                rad = math.radians(eang)
-                for e in range(100):
-                    occ_x = int((e * math.cos(rad)) - (e * math.sin(rad))) + cell_x
-                    occ_y = int((e * math.sin(rad)) + (e * math.cos(rad))) + cell_y
-                    if self.heatmap_data[occ_x + (self.width * (occ_y-1))] == 60:
-                        self.heatmap_data[occ_x + (self.width * (occ_y-1))] = 95
-                    elif self.heatmap_data[occ_x + (self.width * (occ_y-1))] == 30:
-                        self.heatmap_data[occ_x + (self.width * (occ_y-1))] = 60
-                    elif self.heatmap_data[occ_x + (self.width * (occ_y-1))] == 20:
-                        self.heatmap_data[occ_x + (self.width * (occ_y-1))] = 30
-                    else:
-                        self.heatmap_data[occ_x + (self.width * (occ_y-1))] = 10
-
-            for eang in range(330 + target_angle,345 + target_angle):
-                rad = math.radians(eang)
-                for e in range(100):
-                    occ_x = int((e * math.cos(rad)) - (e * math.sin(rad))) + cell_x
-                    occ_y = int((e * math.sin(rad)) + (e * math.cos(rad))) + cell_y
-                    if self.heatmap_data[occ_x + (self.width * (occ_y-1))] == 60:
-                        self.heatmap_data[occ_x + (self.width * (occ_y-1))] = 95
-                    elif self.heatmap_data[occ_x + (self.width * (occ_y-1))] == 30:
-                        self.heatmap_data[occ_x + (self.width * (occ_y-1))] = 60
-                    elif self.heatmap_data[occ_x + (self.width * (occ_y-1))] == 20:
-                        self.heatmap_data[occ_x + (self.width * (occ_y-1))] = 30
-                    else:
-                        self.heatmap_data[occ_x + (self.width * (occ_y-1))] = 10
+                #calculate angle usgin target_angle
+                view_cell_x = int((poe.pos.x - self.origin_x) / self.resolution)
+                view_cell_y = int((poe.pos.y - self.origin_y - 5.0) / self.resolution)
 
 
+                ### personal_space
+                for ang in range(-60, 60):
+                    rad = math.radians(target_angle + ang)
+                    for c in range(self.personal_space_min, self.personal_space_max):
+                        occ_x = int((c * math.cos(rad)) - (c * math.sin(rad))) + cell_x
+                        occ_y = int((c * math.sin(rad)) + (c * math.cos(rad))) + cell_y
+                        value_grid[occ_x + (self.width * (occ_y-1))][0] = 1
+                        # evaluate_array[occ_x + (self.width * (occ_y-1))] = 30
+
+                ### limited_space
+                for dang in range(0, 360):
+                    rad = math.radians(dang)
+                    for d in range(self.limited_distance_min, self.limited_distance_max):
+                        occ_x = int((d * math.cos(rad)) - (d * math.sin(rad))) + projection_cell_x
+                        occ_y = int((d * math.sin(rad)) + (d * math.cos(rad))) + projection_cell_y
+                        value_grid[occ_x + (self.width * (occ_y-1))][1] = 1
+                        # evaluate_array[occ_x + (self.width * (occ_y-1))] = 60
+
+                ### eye view ###
+                for eang in range(15 + target_angle,30 + target_angle):
+                    rad = math.radians(eang)
+                    for e in range(100):
+                        occ_x = int((e * math.cos(rad)) - (e * math.sin(rad))) + cell_x
+                        occ_y = int((e * math.sin(rad)) + (e * math.cos(rad))) + cell_y
+                        value_grid[occ_x + (self.width * (occ_y-1))][2] = 1
+
+                for eang in range(330 + target_angle,345 + target_angle):
+                    rad = math.radians(eang)
+                    for e in range(100):
+                        occ_x = int((e * math.cos(rad)) - (e * math.sin(rad))) + cell_x
+                        occ_y = int((e * math.sin(rad)) + (e * math.cos(rad))) + cell_y
+                        value_grid[occ_x + (self.width * (occ_y-1))][3] = 1
 
 
+            for num in range(self.heatmap_num):
+                if value_grid[num][2] == 1:
+                    self.heatmap_data[num] = 60
 
 
-            ### for debug ###
-            # for i in range(self.width):
-            #     self.heatmap_data[i + (self.width * (cell_y-1))] = 0
-            # for j in range(self.height):
-            #     self.heatmap_data[cell_x + (j * self.width)] = 0
-
-
-        self.heatmap_msg.data = self.heatmap_data
-        self.heatmap_pub.publish(self.heatmap_msg)
+            self.heatmap_msg.data = self.heatmap_data
+            self.heatmap_pub.publish(self.heatmap_msg)
+            self.flag += 1
 
 
 
