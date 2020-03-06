@@ -98,7 +98,7 @@ class Subscribe():
 
 
                 ### personal_space
-                for ang in range(-60, 60):
+                for ang in np.arange(float(-60), float(60),0.1):
                     rad = math.radians(target_angle + ang)
                     for c in range(self.personal_space_min, self.personal_space_max):
                         occ_x = int((c * math.cos(rad)) - (c * math.sin(rad))) + cell_x
@@ -107,7 +107,7 @@ class Subscribe():
                         # evaluate_array[occ_x + (self.width * (occ_y-1))] = 30
 
                 ### limited_space
-                for dang in range(0, 360):
+                for dang in np.arange(float(0), float(360),0.1):
                     rad = math.radians(dang)
                     for d in range(self.limited_distance_min, self.limited_distance_max):
                         occ_x = int((d * math.cos(rad)) - (d * math.sin(rad))) + projection_cell_x
@@ -116,14 +116,14 @@ class Subscribe():
                         # evaluate_array[occ_x + (self.width * (occ_y-1))] = 60
 
                 ### eye view ###
-                for eang in range(15 + target_angle,30 + target_angle):
+                for eang in np.arange(float(15 + target_angle),float(30 + target_angle),0.1):
                     rad = math.radians(eang)
                     for e in range(100):
                         occ_x = int((e * math.cos(rad)) - (e * math.sin(rad))) + cell_x
                         occ_y = int((e * math.sin(rad)) + (e * math.cos(rad))) + cell_y
                         value_grid[occ_x + (self.width * (occ_y-1))][2] = 1
 
-                for eang in range(330 + target_angle,345 + target_angle):
+                for eang in np.arange(float(330 + target_angle),float(345 + target_angle),0.1):
                     rad = math.radians(eang)
                     for e in range(100):
                         occ_x = int((e * math.cos(rad)) - (e * math.sin(rad))) + cell_x
@@ -132,9 +132,8 @@ class Subscribe():
 
 
             for num in range(self.heatmap_num):
-                if value_grid[num][2] == 1:
-                    self.heatmap_data[num] = 60
-
+                # if value_grid[num][2] == 1:
+                self.heatmap_data[num] = value_grid[num][0] * 30 + value_grid[num][1] * 30 + value_grid[num][2] * 30 + value_grid[num][3] * 30
 
             self.heatmap_msg.data = self.heatmap_data
             self.heatmap_pub.publish(self.heatmap_msg)
