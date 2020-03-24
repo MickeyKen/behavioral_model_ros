@@ -14,17 +14,22 @@ from std_srvs.srv import SetBoolResponse
 from ubiquitous_display_pantilt.srv import AddPoints
 from geometry_msgs.msg import Point
 
+from std_msgs.msg import Float64
+
 import time
 
 class Server():
     def __init__(self):
 
-        self.x_position = 2.5
-        self.y_position = 1.5
-        self.offset = 0.3
+        self.x_position = 4.0
+        self.y_position = 1.25
+        self.offset = 0.5
 
         self.fil_leg_msg = PositionMeasurementArray()
         self.flag = 0
+
+        self.pan_pub = rospy.Publisher('/ubiquitous_display/pan_controller/command', Float64, queue_size=10)
+        self.tilt_pub = rospy.Publisher('/ubiquitous_display/tilt_controller/command', Float64, queue_size=10)
 
         self.image_pub = rospy.Publisher('/ubiquitous_display/image', Int32, queue_size=10)
         self.on_off_project(0)
@@ -66,6 +71,8 @@ class Server():
                         if response.success:
                             self.on_off_project(1)
                             time.sleep(0.5)
+                            self.pan_pub.publish(-1.57)
+                            self.tilt_pub.publish(0.0)
                             self.on_off_project(0)
                             resp.success = True
                         else:
