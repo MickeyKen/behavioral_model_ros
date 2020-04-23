@@ -55,11 +55,14 @@ class Server():
                 print ("plus")
             elif ang.z < 0:
                 print ("minus")
-                print actor_pose.position
+                # print actor_pose.position
                 proj_pos = actor_pose.position.x - 2.5
-                distance = self.get_distance(proj_pos, actor_pose.position.y, ud_pose.position.x, ud_pose.position.y,)
-                print distance
+                distance, radian = self.get_distance(proj_pos, actor_pose.position.y, ud_pose.position.x, ud_pose.position.y,)
+                # print distance, radian
+                ud_ang = self.quaternion_to_euler(ud_pose.orientation)
                 if distance > 2.0 and distance < 4.5:
+                    pan_ang = (math.pi / 2.0) - radian + ud_ang.z
+                    print pan_ang
                     break
             else:
                 pass
@@ -103,7 +106,8 @@ class Server():
 
     def get_distance(self, x1, y1, x2, y2):
         d = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
-        return d
+        r = math.atan2(y2 - y1,x2 - x1)
+        return d, r
 
 if __name__ == '__main__':
     rospy.init_node('neuro_projection_service')
