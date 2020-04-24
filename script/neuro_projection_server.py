@@ -11,7 +11,7 @@ from geometry_msgs.msg import Point, Vector3
 
 from std_srvs.srv import SetBool, SetBoolResponse
 from gazebo_msgs.srv import GetModelState, GetModelStateRequest
-from ubiquitous_display_pantilt.srv import AddPoints
+from ubiquitous_display_pantilt.srv import AddPoints, AddPointsRequest
 
 class Server():
     def __init__(self):
@@ -31,7 +31,7 @@ class Server():
         self.image_pub = rospy.Publisher('/ubiquitous_display/image', Int32, queue_size=10)
         self.on_off_project(0)
 
-        self.set_pantilt = rospy.ServiceProxy('action_plan_pantilt', AddPoints)
+        self.set_pantilt = rospy.ServiceProxy('neuro/action_plan_pantilt', AddPoints)
 
         # Declaration Service Server
         self.server = rospy.Service("/projection/service", SetBool, self.service_callback)
@@ -42,27 +42,42 @@ class Server():
         resp = SetBoolResponse()
         resp.message = "called"
         resp.success = False
+        pt_msg = AddPointsRequest()
 
         ud_pose = self.get_pose("ubiquitous_display")
+        ud_ang = self.quaternion_to_euler(ud_pose.orientation)
 
         for name in self.name_list:
             actor_pose = self.get_pose(name)
-            # print ud_pose.position.x - actor_pose.position.x
-            # print ud_pose.position.y - actor_pose.position.y
-            ang = self.quaternion_to_euler(actor_pose.orientation)
+            actor_ang = self.quaternion_to_euler(actor_pose.orientation)
 
-            if ang.z > 0:
+            if actor_ang.z > 0:
                 print ("plus")
-            elif ang.z < 0:
-                print ("minus")
-                # print actor_pose.position
+            elif actor_ang.z < 0 and actor_pose.position.x - ud_pose.position.x > 2.5:
                 proj_pos = actor_pose.position.x - 2.5
+                print ("target pose: ", proj_pos, actor_pose.position.y, name)
+                print (int(ud_ang.z))
                 distance, radian = self.get_distance(proj_pos, actor_pose.position.y, ud_pose.position.x, ud_pose.position.y,)
-                # print distance, radian
-                ud_ang = self.quaternion_to_euler(ud_pose.orientation)
-                if distance > 2.0 and distance < 4.5:
-                    pan_ang = (math.pi / 2.0) - radian + ud_ang.z
+                if distance > 1.5 and distance < 3.0:
+                    if radian < 3.14:
+                        pan_ang = -(math.pi / 2.0) + radian - ud_ang.z
+                    else:
+                        pan_ang = -(math.pi / 2.0) - ((math.pi*2.0)-radian) - ud_ang.z
                     print pan_ang
+                    tilt_ang = self.calculate_tilt_ang(distance)
+                    print tilt_ang
+                    pt_msg.position.x = pan_ang
+                    pt_msg.position.y = tilt_ang
+                    responce = self.set_pantilt(pt_msg)
+                    if responce.success:
+                        self.on_off_project(1)
+                        time.sleep(0.5)
+                        self.pan_pub.publish(-(math.pi / 2.0))
+                        self.tilt_pub.publish(0.0)
+                        self.on_off_project(0)
+                        resp.success = True
+                    else:
+                        resp.success = False
                     break
             else:
                 pass
@@ -106,8 +121,12 @@ class Server():
 
     def get_distance(self, x1, y1, x2, y2):
         d = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
-        r = math.atan2(y2 - y1,x2 - x1)
+        r = math.atan2(y1 - y2,x1 - x2)
         return d, r
+
+    def calculate_tilt_ang(self, distance):
+        rad_tilt = math.atan2(1.21, distance)
+        return rad_tilt
 
 if __name__ == '__main__':
     rospy.init_node('neuro_projection_service')
