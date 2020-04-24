@@ -2,7 +2,7 @@
 
     <master auto="start"/>
 
-    <node name="ubiquitous_display_pantilt_server" pkg="behavioral_model" type="pantilt_service_server.py" output="screen" />
+    <node name="ubiquitous_display_pantilt_server" pkg="behavioral_model" type="neuro_pantilt_server.py" output="screen" />
 
     <node name="projection_service_server" pkg="behavioral_model" type="neuro_projection_server.py" output="screen" />
 </launch>
