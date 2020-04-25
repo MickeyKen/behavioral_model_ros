@@ -13,6 +13,12 @@ from std_srvs.srv import SetBool, SetBoolResponse
 from gazebo_msgs.srv import GetModelState, GetModelStateRequest
 from ubiquitous_display_pantilt.srv import AddPoints, AddPointsRequest
 
+MAX_PAN_RADIAN = 2.9670
+MIN_PAN_RADIAN = -2.9670
+
+MAX_TILT_RADIAN = 1.3
+MIN_TILT_RADIAN = -0.2617 
+
 class Server():
     def __init__(self):
 
@@ -29,7 +35,6 @@ class Server():
         self.tilt_pub = rospy.Publisher('/ubiquitous_display/tilt_controller/command', Float64, queue_size=10)
 
         self.image_pub = rospy.Publisher('/ubiquitous_display/image', Int32, queue_size=10)
-        self.on_off_project(0)
 
         self.set_pantilt = rospy.ServiceProxy('neuro/action_plan_pantilt', AddPoints)
 
@@ -37,6 +42,11 @@ class Server():
         self.server = rospy.Service("/projection/service", SetBool, self.service_callback)
 
         self.call = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
+
+        rospy.sleep(2)
+        self.image_pub.publish(0)
+        self.pan_pub.publish(-(math.pi / 2.0))
+        rospy.loginfo("--- Start projection server ---")
 
     def service_callback(self, req):
         resp = SetBoolResponse()
@@ -58,16 +68,19 @@ class Server():
                 print ("target pose: ", proj_pos, actor_pose.position.y, name)
                 print (int(ud_ang.z))
                 distance, radian = self.get_distance(proj_pos, actor_pose.position.y, ud_pose.position.x, ud_pose.position.y,)
-                if distance > 1.5 and distance < 3.0:
+                if distance > 1.5 and distance < 2.5:
                     if radian < 3.14:
                         pan_ang = -(math.pi / 2.0) + radian - ud_ang.z
                     else:
                         pan_ang = -(math.pi / 2.0) - ((math.pi*2.0)-radian) - ud_ang.z
-                    print pan_ang
                     tilt_ang = self.calculate_tilt_ang(distance)
-                    print tilt_ang
-                    pt_msg.position.x = pan_ang
+
+                    if abs(pan_ang) < 2.9670:
+                        pt_msg.position.x = pan_ang
+                    else:
+                        pt_msg.position.x = -(math.pi / 2.0)
                     pt_msg.position.y = tilt_ang
+
                     responce = self.set_pantilt(pt_msg)
                     if responce.success:
                         self.on_off_project(1)
@@ -95,7 +108,6 @@ class Server():
         return response
 
     def on_off_project(self, on_off):
-        print "in"
         int_msg = Int32()
         if on_off == 1:
             int_msg = 1
