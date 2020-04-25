@@ -69,9 +69,11 @@ class Server():
                 print (int(ud_ang.z))
                 distance, radian = self.get_distance(proj_pos, actor_pose.position.y, ud_pose.position.x, ud_pose.position.y,)
                 if distance > 1.5 and distance < 2.5:
+                    ### calculate pan and tilt radian
                     pan_ang = self.calculate_pan_ang(radian, ud_ang.z)
                     tilt_ang = self.calculate_tilt_ang(distance)
 
+                    ### check pan angle (limit +-2.9670)
                     if abs(pan_ang) < 2.9670:
                         pt_msg.position.x = pan_ang
                     else:
@@ -79,6 +81,7 @@ class Server():
                         break
                     pt_msg.position.y = tilt_ang
 
+                    ### call service of pantilt
                     responce = self.set_pantilt(pt_msg)
                     if responce.success:
                         self.on_off_project(1)
