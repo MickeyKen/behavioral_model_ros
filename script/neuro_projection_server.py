@@ -52,7 +52,6 @@ class Server():
         resp = SetBoolResponse()
         resp.message = "called"
         resp.success = False
-        pt_msg = AddPointsRequest()
 
         ud_pose = self.get_pose("ubiquitous_display")
         ud_ang = self.quaternion_to_euler(ud_pose.orientation)
@@ -63,8 +62,8 @@ class Server():
 
             if actor_ang.z > 0:
                 print ("plus")
-            elif actor_ang.z < 0 and actor_pose.position.x - ud_pose.position.x > 2.5:
-                proj_pos = actor_pose.position.x - 2.5
+            elif actor_ang.z < 0 and actor_pose.position.x - ud_pose.position.x > 4.0:
+                proj_pos = actor_pose.position.x - 4.0
                 print ("target pose: ", proj_pos, actor_pose.position.y, name)
                 print (int(ud_ang.z))
                 distance, radian = self.get_distance(proj_pos, actor_pose.position.y, ud_pose.position.x, ud_pose.position.y,)
@@ -75,20 +74,19 @@ class Server():
 
                     ### check pan angle (limit +-2.9670)
                     if abs(pan_ang) < 2.9670:
-                        pt_msg.position.x = pan_ang
+                        responce = self.set_pantilt_func(pan_ang,tilt_ang)
                     else:
                         resp.success = False
                         break
-                    pt_msg.position.y = tilt_ang
 
-                    ### call service of pantilt
-                    responce = self.set_pantilt(pt_msg)
-                    if responce.success:
+                    if responce:
                         self.on_off_project(1)
-                        time.sleep(0.5)
-                        self.pan_pub.publish(-(math.pi / 2.0))
-                        self.tilt_pub.publish(0.0)
+                        while True:
+                            actor_pose = self.get_pose(name)
+                            if actor_pose.position.x < proj_pos:
+                                break
                         self.on_off_project(0)
+                        responce = self.set_pantilt_func(-(math.pi / 2.0),0.0)
                         resp.success = True
                     else:
                         resp.success = False
@@ -97,14 +95,13 @@ class Server():
                 pass
         return resp
 
-    def set_pantilt_func(self, x,y,z):
-        set_point = Point()
+    def set_pantilt_func(self, pan, tilt):
+        pt_msg = AddPointsRequest()
 
-        set_point.x = x
-        set_point.y = y
-        set_point.z = z
+        pt_msg.position.x = pan
+        pt_msg.position.y = tilt
 
-        response = self.set_pantilt(set_point)
+        response = self.set_pantilt(pt_msg)
 
         return response
 
