@@ -11,11 +11,11 @@ from std_msgs.msg import Bool
 from std_msgs.msg import Float64
 from sensor_msgs.msg import JointState
 
-MAX_PAN_RADIAN = 1.24 #71
-MIN_PAN_RADIAN = 3.8  #217
+MAX_PAN_RADIAN = 2.9670
+MIN_PAN_RADIAN = 2.9670
 
-MAX_TILT_RADIAN = 1.04 # 2.96
-MIN_TILT_RADIAN = 0.52 #29
+MAX_TILT_RADIAN = 1.3
+MIN_TILT_RADIAN = 0.2617
 
 class Publishsers():
 
