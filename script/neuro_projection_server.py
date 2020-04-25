@@ -17,7 +17,7 @@ MAX_PAN_RADIAN = 2.9670
 MIN_PAN_RADIAN = -2.9670
 
 MAX_TILT_RADIAN = 1.3
-MIN_TILT_RADIAN = -0.2617 
+MIN_TILT_RADIAN = -0.2617
 
 class Server():
     def __init__(self):
@@ -69,16 +69,14 @@ class Server():
                 print (int(ud_ang.z))
                 distance, radian = self.get_distance(proj_pos, actor_pose.position.y, ud_pose.position.x, ud_pose.position.y,)
                 if distance > 1.5 and distance < 2.5:
-                    if radian < 3.14:
-                        pan_ang = -(math.pi / 2.0) + radian - ud_ang.z
-                    else:
-                        pan_ang = -(math.pi / 2.0) - ((math.pi*2.0)-radian) - ud_ang.z
+                    pan_ang = self.calculate_pan_ang(radian, ud_ang.z)
                     tilt_ang = self.calculate_tilt_ang(distance)
 
                     if abs(pan_ang) < 2.9670:
                         pt_msg.position.x = pan_ang
                     else:
-                        pt_msg.position.x = -(math.pi / 2.0)
+                        resp.success = False
+                        break
                     pt_msg.position.y = tilt_ang
 
                     responce = self.set_pantilt(pt_msg)
@@ -139,6 +137,13 @@ class Server():
     def calculate_tilt_ang(self, distance):
         rad_tilt = math.atan2(1.21, distance)
         return rad_tilt
+
+    def calculate_pan_ang(self, radian, ud_ang):
+        if radian < 3.14:
+            rad_pan = -(math.pi / 2.0) + radian - ud_ang
+        else:
+            rad_pan = -(math.pi / 2.0) - ((math.pi*2.0)-radian) - ud_ang
+        return rad_pan
 
 if __name__ == '__main__':
     rospy.init_node('neuro_projection_service')
