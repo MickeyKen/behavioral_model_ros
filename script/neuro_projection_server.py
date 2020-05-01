@@ -8,6 +8,7 @@ import tf
 
 from std_msgs.msg import String, Bool, Int32, Float64
 from geometry_msgs.msg import Point, Vector3
+from sensor_msgs.msg import LaserScan
 
 from std_srvs.srv import SetBool, SetBoolResponse
 from gazebo_msgs.srv import GetModelState, GetModelStateRequest
@@ -31,6 +32,8 @@ class Server():
         for i in range(human_number):
             self.name_list.append("actor" + str(i))
 
+        self.scan_flag = 0
+
         self.pan_pub = rospy.Publisher('/ubiquitous_display/pan_controller/command', Float64, queue_size=10)
         self.tilt_pub = rospy.Publisher('/ubiquitous_display/tilt_controller/command', Float64, queue_size=10)
 
@@ -42,6 +45,8 @@ class Server():
         self.server = rospy.Service("/projection/service", SetBool, self.service_callback)
 
         self.call = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
+
+        self.ptm_sub = rospy.Subscriber('/front_laser_scan', LaserScan , self.scan_callback)
 
         rospy.sleep(2)
         self.image_pub.publish(0)
@@ -80,20 +85,40 @@ class Server():
                         break
 
                     if responce:
+                        resp.success = True
                         self.on_off_project(1)
                         while True:
                             actor_pose = self.get_pose(name)
                             if actor_pose.position.x < proj_pos:
                                 break
+                            if self.scan_flag == 1:
+                                resp.success = False
+                                break
                         self.on_off_project(0)
                         responce = self.set_pantilt_func(-(math.pi / 2.0),0.0)
-                        resp.success = True
                     else:
                         resp.success = False
                     break
             else:
                 pass
         return resp
+
+    def scan_callback(self, msg):
+        state,done = self.calculate_observation(msg)
+        # print done
+        if done:
+            self.scan_flag = 1
+        else:
+            self.scan_flag = 0
+        # print self.scan_flag
+
+    def calculate_observation(self, data):
+        min_range = 0.4
+        done = False
+        for i, item in enumerate(data.ranges):
+            if (min_range > data.ranges[i] > 0):
+                done = True
+        return data.ranges,done
 
     def set_pantilt_func(self, pan, tilt):
         pt_msg = AddPointsRequest()
