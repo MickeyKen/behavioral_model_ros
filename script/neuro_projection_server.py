@@ -80,25 +80,18 @@ class Server():
                     ### check pan angle (limit +-2.9670)
                     if abs(pan_ang) < 2.9670:
                         responce = self.set_pantilt_func(pan_ang,tilt_ang)
-                    else:
-                        resp.success = False
-                        break
-
-                    if responce:
-                        resp.success = True
-                        self.on_off_project(1)
-                        while True:
-                            actor_pose = self.get_pose(name)
-                            if actor_pose.position.x < proj_pos:
-                                break
-                            if self.scan_flag == 1:
-                                resp.success = False
-                                break
-                        self.on_off_project(0)
-                        responce = self.set_pantilt_func(-(math.pi / 2.0),0.0)
-                    else:
-                        resp.success = False
-                    break
+                        if responce:
+                            resp.success = True
+                            self.on_off_project(1)
+                            while True:
+                                actor_pose = self.get_pose(name)
+                                if actor_pose.position.x < proj_pos:
+                                    break
+                                if self.scan_flag == 1:
+                                    resp.success = False
+                                    break
+                            self.on_off_project(0)
+                            responce = self.set_pantilt_func(-(math.pi / 2.0),0.0)
             else:
                 pass
         return resp
