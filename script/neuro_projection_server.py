@@ -69,8 +69,8 @@ class Server():
                 print ("plus")
             elif actor_ang.z < 0 and actor_pose.position.x - ud_pose.position.x > 4.0:
                 proj_pos = actor_pose.position.x - 4.0
-                print ("target pose: ", proj_pos, actor_pose.position.y, name)
-                print (int(ud_ang.z))
+                # print ("target pose: ", proj_pos, actor_pose.position.y, name)
+                # print (int(ud_ang.z))
                 distance, radian = self.get_distance(proj_pos, actor_pose.position.y, ud_pose.position.x, ud_pose.position.y,)
                 if distance > 1.5 and distance < 2.5:
                     ### calculate pan and tilt radian
@@ -85,7 +85,7 @@ class Server():
                             self.on_off_project(1)
                             while True:
                                 actor_pose = self.get_pose(name)
-                                if actor_pose.position.x < proj_pos:
+                                if actor_pose.position.x < proj_pos + 1.2:
                                     break
                                 if self.scan_flag == 1:
                                     resp.success = False
