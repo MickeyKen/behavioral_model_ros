@@ -27,6 +27,7 @@ void Mimic::poseCallback(const geometry_msgs::PoseConstPtr& pose)
   visualization_msgs::MarkerArray markers;
   visualization_msgs::Marker marker_body;
   visualization_msgs::Marker marker_head;
+  visualization_msgs::Marker marker_arrow;
 
   marker_body.header.frame_id = "/map";
   marker_body.header.stamp = ros::Time::now();
@@ -86,6 +87,34 @@ void Mimic::poseCallback(const geometry_msgs::PoseConstPtr& pose)
   marker_head.lifetime = ros::Duration(0.5);
   markers.markers.push_back(marker_head);
 
+  marker_arrow.header.frame_id = "/map";
+  marker_arrow.header.stamp = ros::Time::now();
+
+  marker_arrow.ns = "basic_shapes";
+  marker_arrow.id = 2;
+  marker_arrow.type = 0;
+  marker_arrow.action = visualization_msgs::Marker::ADD;
+  marker_arrow.pose.position.x = pose->position.x;
+  marker_arrow.pose.position.y = pose->position.y;
+  marker_arrow.pose.position.z = 2.5;
+  marker_arrow.pose.orientation.x = pose->orientation.x;
+  marker_arrow.pose.orientation.y = pose->orientation.y;
+  marker_arrow.pose.orientation.z = pose->orientation.z;
+  marker_arrow.pose.orientation.w = pose->orientation.w;
+
+  // Set the scale of the marker -- 1x1x1 here means 1m on a side
+  marker_arrow.scale.x = 1.4;
+  marker_arrow.scale.y = 0.25;
+  marker_arrow.scale.z = 0.25;
+
+  // Set the color -- be sure to set alpha to something non-zero!
+  marker_arrow.color.r = 1.0f;
+  marker_arrow.color.g = 0.0f;
+  marker_arrow.color.b = 0.0f;
+  marker_arrow.color.a = 1.0;
+
+  marker_arrow.lifetime = ros::Duration(0.5);
+  markers.markers.push_back(marker_arrow);
   marker_pub_.publish(markers);
 }
 int main(int argc, char** argv)
