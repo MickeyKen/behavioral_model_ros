@@ -26,11 +26,13 @@ def discretize_observation(data,new_ranges):
 if __name__ == '__main__':
     rospy.init_node('analysis_lidar_node', anonymous=True)
 
-    data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
+    while True:
 
-    state,done = discretize_observation(data,5)
+   	data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
 
-    print state, done
+    	state,done = discretize_observation(data,5)
+
+    	print state, done
 
 
     # rospy.spin()

@@ -2,28 +2,28 @@
 
     <master auto="start"/>
     <!-- MAP SERVER -->
-    <arg name="map_file" default="$(find custom_2dnav)/map/corridor_map.yaml"/>
+    <arg name="map_file" default="$(find ubiquitous_display_navigation)/map/corridor_map.yaml"/>
     <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)">
       <param name="frame_id" value="/map" />
     </node>
 
     <!-- AMCL -->
-    <include file="$(find custom_2dnav)/launch/amcl.launch"/>
+    <include file="$(find ubiquitous_display_navigation)/launch/amcl.launch"/>
 
     <!-- MOVE BASE -->
     <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
       <!-- COST MAP -->
-      <rosparam file="$(find custom_2dnav)/config/costmap/costmap_common.yaml" command="load" ns="global_costmap" />
-      <rosparam file="$(find custom_2dnav)/config/costmap/costmap_common.yaml" command="load" ns="local_costmap" />
-      <rosparam file="$(find custom_2dnav)/config/costmap/local_costmap.yaml" command="load" />
-      <rosparam file="$(find custom_2dnav)/config/costmap/global_costmap.yaml" command="load" />
+      <rosparam file="$(find ubiquitous_display_navigation)/config/costmap/costmap_common.yaml" command="load" ns="global_costmap" />
+      <rosparam file="$(find ubiquitous_display_navigation)/config/costmap/costmap_common.yaml" command="load" ns="local_costmap" />
+      <rosparam file="$(find ubiquitous_display_navigation)/config/costmap/local_costmap.yaml" command="load" />
+      <rosparam file="$(find ubiquitous_display_navigation)/config/costmap/global_costmap.yaml" command="load" />
 
       <!-- BASE GLOBAL PLANNER -->
-      <rosparam file="$(find custom_2dnav)/config/planner/global/navfn_planner.yaml" command="load" />
+      <rosparam file="$(find ubiquitous_display_navigation)/config/planner/global/navfn_planner.yaml" command="load" />
       <!-- BASE LOCAL PLANNER -->
-      <rosparam file="$(find custom_2dnav)/config/planner/local/dwa_planner.yaml" command="load" />
+      <rosparam file="$(find ubiquitous_display_navigation)/config/planner/local/dwa_planner.yaml" command="load" />
       <!-- RECOVERY -->
-      <rosparam file="$(find custom_2dnav)/config/planner/recovery_behaviors.yaml" command="load"/>
+      <rosparam file="$(find ubiquitous_display_navigation)/config/planner/recovery_behaviors.yaml" command="load"/>
 
       <!-- MOVE BASE -->
       <param name="controller_frequency" value="5.0" />

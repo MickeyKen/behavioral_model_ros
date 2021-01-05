@@ -35,7 +35,7 @@ private:
   geometry_msgs::PoseStamped a_pose, b_pose, c_pose, d_pose, ex_pose;
   actionlib_msgs::GoalID cancel_msg;
 
-  const static double a_x = 0.1;
+  const double a_x = 0.1;
 
   std_msgs::String ret_str;
   // ret_str = "success";
@@ -43,9 +43,9 @@ private:
 
   int flag;
 
-  const static double offset_x = 0.5;
-  const static double offset_y = 0.5;
-  const static double offset_w = 0.05;
+  const double offset_x = 0.5;
+  const double offset_y = 0.5;
+  const double offset_w = 0.05;
 
 };
 

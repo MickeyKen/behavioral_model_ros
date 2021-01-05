@@ -1,0 +1,25 @@
+<launch>
+
+    <master auto="start"/>
+    <!-- MAP SERVER -->
+    <arg name="map_file" default="$(find ubiquitous_display_navigation)/map/simple_corridor.yaml"/>
+    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)">
+      <param name="frame_id" value="/map" />
+    </node>
+
+    <node name="mimic_target_human_node" pkg="behavioral_model" type="mimic_filter_target_human" output="screen" />
+
+    <node pkg="tf"
+        type="static_transform_publisher"
+        name="map_to_odom"
+        args="0 0 0 0 0 0 map odom 100" />
+
+    <node name="filter_leg" pkg="behavioral_model" type="filter_leg.py" output="screen" />
+
+    <!-- launch leg_detctor -->
+    <node pkg="leg_detector" type="leg_detector" name="leg_detector" args="scan:=front_laser_scan $(find leg_detector)/config/trained_leg_detector.yaml" output="screen"/>
+
+    <node name="ubiquitous_display_pantilt_server" pkg="behavioral_model" type="pantilt_service_server.py" output="screen" />
+
+    <node name="projection_service_server" pkg="behavioral_model" type="projection_service.py" output="screen" />
+</launch>
